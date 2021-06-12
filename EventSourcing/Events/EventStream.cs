@@ -2,6 +2,9 @@
 
 namespace EventSourcing.Events
 {
+    /// <summary>
+    /// Represents a stream of events that exist within the same aggregate root.
+    /// </summary>
     public abstract class EventStream
     {
         private readonly List<IEventStreamEvent> _events;
@@ -11,8 +14,14 @@ namespace EventSourcing.Events
             _events = new List<IEventStreamEvent>();
         }
 
+        /// <summary>
+        /// The unique stream identifier.
+        /// </summary>
         public string StreamId { get; private set; }
 
+        /// <summary>
+        /// The current event stream version.
+        /// </summary>
         public int Version { get; private set; }
 
         /// <summary>
@@ -34,7 +43,7 @@ namespace EventSourcing.Events
         /// <summary>
         ///     Applies the event change to the event stream.
         /// </summary>
-        /// <param name="event">The event.</param>
+        /// <param name="event">The event to apply.</param>
         /// <param name="isNewEvent">True if the event is a new event being added to the event stream.</param>
         protected void ApplyChange(IEventStreamEvent @event, bool isNewEvent = true)
         {
