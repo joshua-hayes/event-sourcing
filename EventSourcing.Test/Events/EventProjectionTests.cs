@@ -1,4 +1,5 @@
-﻿using EventSourcing.Test.Data;
+﻿using EventSourcing.Projections;
+using EventSourcing.Test.Data;
 using Xunit;
 
 namespace EventSourcing.Test
@@ -20,6 +21,20 @@ namespace EventSourcing.Test
 
             Assert.NotNull(projection.View);
             Assert.Equal(view, projection.View);
+        }
+
+
+        [Fact]
+        public void When_ApplyChange_Cannot_Handle_Event_Expect_EventProjectionException_Is_Thrown()
+        {
+            // Arrange
+
+            var @event = new UnhandledEvent();
+            var projection = new TestProjection(new TestView());
+
+            // Act / Assert
+
+            Assert.Throws<EventProjectionException>(() => projection.ApplyChange(@event));
         }
     }
 }

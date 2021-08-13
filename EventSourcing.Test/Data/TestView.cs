@@ -1,6 +1,8 @@
-﻿namespace EventSourcing.Test.Data
+﻿using EventSourcing.Projections;
+
+namespace EventSourcing.Test.Data
 {
-    public class TestView
+    public class TestView : MaterialisedView
     {
     }
 }
