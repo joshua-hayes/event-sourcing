@@ -13,16 +13,14 @@ namespace EventSourcing.Cosmos
     public class CosmosMaterialisedViewRepository : IMaterialisedViewRepository
     {
         private readonly CosmosClient _client;
-        private readonly string _databaseId;
-        private readonly string _containerId;
+        private readonly Container _container;
 
         public CosmosMaterialisedViewRepository(CosmosClient client,
                                                 string databaseId,
                                                 string containerId = "views")
         {
             _client = client;
-            _databaseId = databaseId;
-            _containerId = containerId;
+            _container = _client.GetContainer(databaseId, containerId);
         }
 
         /// <summary>
@@ -43,8 +41,7 @@ namespace EventSourcing.Cosmos
                 };
 
                 var partitionKey = new PartitionKey(name);
-                var container = _client.GetContainer(_databaseId, _containerId);
-                await container.UpsertItemAsync(viewData,
+                await _container.UpsertItemAsync(viewData,
                                                 partitionKey,
                                                 new ItemRequestOptions
                                                 {
@@ -67,8 +64,7 @@ namespace EventSourcing.Cosmos
             try
             {
                 var partitionKey = new PartitionKey(name);
-                var container = _client.GetContainer(_databaseId, _containerId);
-                var response = await container.ReadItemAsync<TView>(name, partitionKey);
+                var response = await _container.ReadItemAsync<TView>(name, partitionKey);
 
                 return response.Resource;
             }
@@ -86,8 +82,7 @@ namespace EventSourcing.Cosmos
             try
             {
                 var partitionKey = new PartitionKey(name);
-                var container = _client.GetContainer(_databaseId, _containerId);
-                var response = await container.ReadItemAsync<JObject>(name, partitionKey);
+                var response = await _container.ReadItemAsync<JObject>(name, partitionKey);
 
                 var view = (MaterialisedView)response.Resource.ToObject(type);
 
