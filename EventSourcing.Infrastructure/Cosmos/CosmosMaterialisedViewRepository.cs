@@ -1,10 +1,11 @@
 ﻿using EventSourcing.Projections;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace EventSourcing.Infrastructure.Cosmos
+namespace EventSourcing.Cosmos
 {
     /// <summary>
     /// Stores and saves <see cref="MaterialisedView"/>'s  in a cosomos view container.
@@ -15,13 +16,11 @@ namespace EventSourcing.Infrastructure.Cosmos
         private readonly string _databaseId;
         private readonly string _containerId;
 
-        public CosmosMaterialisedViewRepository(string endpointUrl,
-                                                string authorizationKey,
+        public CosmosMaterialisedViewRepository(CosmosClient client,
                                                 string databaseId,
                                                 string containerId = "views")
         {
-            _client = new CosmosClient(endpointUrl, authorizationKey);
-
+            _client = client;
             _databaseId = databaseId;
             _containerId = containerId;
         }
@@ -31,20 +30,20 @@ namespace EventSourcing.Infrastructure.Cosmos
         /// </summary>
         public async Task<bool> SaveViewAsync(string name, MaterialisedView view)
         {
-            var container = _client.GetContainer(_databaseId, _containerId);
-            var partitionKey = new PartitionKey(name);
-
-            var payload = JObject.FromObject(view);
-            payload.Remove("view");
-            payload.Remove("_etag");
-
-
             try
             {
-                var viewData = new {
+                var payload = JObject.FromObject(view);
+                payload.Remove("view");
+                payload.Remove("_etag");
+
+                var viewData = new
+                {
                     id = name,
                     view = view
                 };
+
+                var partitionKey = new PartitionKey(name);
+                var container = _client.GetContainer(_databaseId, _containerId);
                 await container.UpsertItemAsync(viewData,
                                                 partitionKey,
                                                 new ItemRequestOptions
@@ -64,17 +63,39 @@ namespace EventSourcing.Infrastructure.Cosmos
         /// </summary>
         public async Task<TView> LoadViewAsync<TView>(string name) where TView : MaterialisedView, new()
         {
-            var container = _client.GetContainer(_databaseId, _containerId);
-            var partitionKey = new PartitionKey(name);
 
             try
             {
+                var partitionKey = new PartitionKey(name);
+                var container = _client.GetContainer(_databaseId, _containerId);
                 var response = await container.ReadItemAsync<TView>(name, partitionKey);
+
                 return response.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 return new TView();
+            }
+        }
+
+        /// <summary>
+        /// <see cref="IMaterialisedViewRepository.LoadViewAsync(string, Type)"/>
+        /// </summary>
+        public async Task<MaterialisedView> LoadViewAsync(string name, Type type)
+        {
+            try
+            {
+                var partitionKey = new PartitionKey(name);
+                var container = _client.GetContainer(_databaseId, _containerId);
+                var response = await container.ReadItemAsync<JObject>(name, partitionKey);
+
+                var view = (MaterialisedView)response.Resource.ToObject(type);
+
+                return view;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return (MaterialisedView)Activator.CreateInstance(type);
             }
         }
     }

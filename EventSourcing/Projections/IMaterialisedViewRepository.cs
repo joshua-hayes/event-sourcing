@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace EventSourcing.Projections
 {
@@ -22,5 +23,13 @@ namespace EventSourcing.Projections
         /// <param name="name">The name of the materialised view.</param>
         /// <returns>The materialised view.</returns>
         Task<TView> LoadViewAsync<TView>(string name) where TView : MaterialisedView, new();
+
+        /// <summary>
+        /// Hydrates a previously saved <see cref="MaterialisedView"/>.
+        /// </summary>
+        /// <param name="name">The name of the materialised view.</param>
+        /// <param name="type">The type of view to load.</typeparam>
+        /// <returns>The materialised view.</returns>
+        Task<MaterialisedView> LoadViewAsync(string name, Type type);
     }
 }
