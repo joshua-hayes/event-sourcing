@@ -25,7 +25,7 @@ namespace EventSourcing.Test
             // Arrange
 
             var history = new List<IEventStreamEvent> {
-                new UserRegisteredEvent(1)
+                new UserRegisteredEvent("Jack Mallers", 27)
                 {
                     EventType = nameof(UserRegisteredEvent),
                 }
@@ -44,10 +44,10 @@ namespace EventSourcing.Test
 
             int expectedVersion = 2;
             var history = new List<IEventStreamEvent> {
-                new UserRegisteredEvent(1) {
+                new UserRegisteredEvent("Elon Musk", 50) {
                     Version = 1,
                 },
-                new UserRegisteredEvent(1) {
+                new UserRegisteredEvent("Alex Mashinsky", 55) {
                     Version = 2,
                 }
             };
@@ -67,9 +67,9 @@ namespace EventSourcing.Test
         {
             // Arrange
 
-            int expectedHandlerValidation = 99;
+            int expectedHandlerValidation = 50;
             var history = new List<IEventStreamEvent> {
-                new UserRegisteredEvent(expectedHandlerValidation)
+                new UserRegisteredEvent("Elon Musk", expectedHandlerValidation)
             };
             var stream = new UserEventStream();
 
