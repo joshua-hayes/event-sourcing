@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace EventSourcing.Test
+namespace EventSourcing.Test.Events
 {
     public class EventStreamEventTests
     {

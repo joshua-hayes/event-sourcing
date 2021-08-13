@@ -2,7 +2,7 @@
 using EventSourcing.Test.Data;
 using Xunit;
 
-namespace EventSourcing.Test
+namespace EventSourcing.Test.Projections
 {
     public class EventProjectionTests
     {
