@@ -13,22 +13,16 @@ namespace EventSourcing.Infrastructure.Cosmos
     {
         private readonly IEventTypeResolver _eventTypeResolver;
         private readonly CosmosClient _client;
-        private readonly string _databaseId;
-        private readonly string _containerId;
+        private readonly Container _container;
 
         public CosmosEventStore(IEventTypeResolver eventTypeResolver,
-                                string endpointUrl,
-                                string authorizationKey,
+                                CosmosClient client,
                                 string databaseId,
                                 string containerId = "events")
         {
-
-            // TODO Refactor to inject
-            _client = new CosmosClient(endpointUrl, authorizationKey);
-
+            _client = client;
+            _container = _client.GetContainer(databaseId, containerId);
             _eventTypeResolver = eventTypeResolver;
-            _databaseId = databaseId;
-            _containerId = containerId;
         }
 
         /// <summary>
@@ -36,8 +30,6 @@ namespace EventSourcing.Infrastructure.Cosmos
         /// </summary>
         public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream
         {
-            var container = _client.GetContainer(_databaseId, _containerId);
-
             var sqlQueryText = "SELECT * FROM e"
                             + " WHERE e.streamId = @streamId"
                             + " ORDER BY e.version";
@@ -46,7 +38,7 @@ namespace EventSourcing.Infrastructure.Cosmos
 
 
             var eventStoreEvents = new List<IEventStreamEvent>();
-            var feedIterator = container.GetItemQueryIterator<JObject>(queryDefinition);
+            var feedIterator = _container.GetItemQueryIterator<JObject>(queryDefinition);
             while (feedIterator.HasMoreResults)
             {
                 var response = await feedIterator.ReadNextAsync();
@@ -71,7 +63,6 @@ namespace EventSourcing.Infrastructure.Cosmos
         /// </summary>
         public async Task<bool> SaveStreamAsync(EventStream stream, int expectedVersion)
         {
-            var container = _client.GetContainer(_databaseId, _containerId);
             var partitionKey = new PartitionKey(stream.StreamId);
 
             var parameters = new dynamic[]
@@ -81,7 +72,7 @@ namespace EventSourcing.Infrastructure.Cosmos
                 SerializeEvents(expectedVersion, stream.UncommittedChanges)
             };
 
-            return await container.Scripts.ExecuteStoredProcedureAsync<bool>("spAppendToStream", partitionKey, parameters);
+            return await _container.Scripts.ExecuteStoredProcedureAsync<bool>("spAppendToStream", partitionKey, parameters);
         }
 
         private static string SerializeEvents(int expectedVersion, IEnumerable<IEventStreamEvent> events)
