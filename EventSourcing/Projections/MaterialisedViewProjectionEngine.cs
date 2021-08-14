@@ -40,8 +40,7 @@ namespace EventSourcing.Projections
 
             var projections = _projections.Where(p => p.GetInterfaces()
                                                        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>)
-                                                                                 && i.GetGenericArguments().First() == @event.GetType()))
-                                            .ToList();
+                                                                                 && i.GetGenericArguments().First() == @event.GetType()));
             foreach (var p in projections)
             {
                 try
