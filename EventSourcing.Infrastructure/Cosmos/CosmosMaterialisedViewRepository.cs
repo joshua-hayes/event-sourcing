@@ -79,6 +79,12 @@ namespace EventSourcing.Cosmos
         /// </summary>
         public async Task<MaterialisedView> LoadViewAsync(string name, Type type)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             try
             {
                 var partitionKey = new PartitionKey(name);
