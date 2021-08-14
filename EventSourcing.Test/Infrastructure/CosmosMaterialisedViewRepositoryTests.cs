@@ -3,10 +3,12 @@ using EventSourcing.Projections;
 using EventSourcing.Test.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -108,6 +110,73 @@ namespace EventSourcing.Infrastructure.Test
 
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => sut.LoadViewAsync(_viewName, type));
             Assert.Equal("type", exception.ParamName);
+        }
+
+        [Fact]
+        public async Task When_Container_Throws_NotFound_Exception_Expect_Generic_LoadViewAsync_Returns_Empty_View()
+        {
+            // Arrange
+
+            var mockContainer = new Mock<Container>();
+            mockContainer.Setup(c => c.ReadItemAsync<TestView>(_viewName, It.IsAny<PartitionKey>(), null, default))
+                         .Throws(new CosmosException(null, HttpStatusCode.NotFound, 0, "", 1));
+            _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
+                        .Returns(mockContainer.Object);
+
+            var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
+
+            // Act
+
+            var view = await sut.LoadViewAsync<TestView>(_viewName);
+
+            // Assert
+
+            Assert.NotNull(view);
+            Assert.IsType<TestView>(view);
+            Assert.Equal(new JObject(), view.View);
+            Assert.Null(view.Etag);
+        }
+
+        [Fact]
+        public async Task When_Container_Generic_ReadItemAsync_Returns_View_Expect_View_Property_Is_Set()
+        {
+            // Arrange
+
+            var serialisedView = "{ 'name': 'Jack Dorsey'}";
+            var mockItemResponse = new Mock<ItemResponse<TestView>>();
+            mockItemResponse.Setup(r => r.Resource).Returns(JsonConvert.DeserializeObject<TestView>(serialisedView));
+
+            var mockContainer = new Mock<Container>();
+            _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
+                        .Returns(mockContainer.Object);
+            mockContainer.Setup(c => c.ReadItemAsync<TestView>(_viewName, It.IsAny<PartitionKey>(), null, default))
+                         .ReturnsAsync(mockItemResponse.Object);
+
+            var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
+
+            // Act
+
+            var view = await sut.LoadViewAsync<TestView>(_viewName) as TestView;
+
+            // Assert
+
+            Assert.NotNull(view);
+            Assert.IsType<TestView>(view);
+            Assert.Equal("Jack Dorsey", view.Name);
+        }
+
+        [Fact]
+        public async Task When_Generic_LoadViewAsync_Is_Called_With_No_ViewName_Expect_ArgumentNullException()
+        {
+            // Arrange
+
+            string viewName = null;
+            var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
+
+            // Act / Assert
+
+            var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => sut.LoadViewAsync<TestView>(viewName));
+            Assert.Equal("name", exception.ParamName);
         }
     }
 }

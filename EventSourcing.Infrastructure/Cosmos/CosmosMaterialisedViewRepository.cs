@@ -60,6 +60,8 @@ namespace EventSourcing.Cosmos
         /// </summary>
         public async Task<TView> LoadViewAsync<TView>(string name) where TView : MaterialisedView, new()
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
 
             try
             {
