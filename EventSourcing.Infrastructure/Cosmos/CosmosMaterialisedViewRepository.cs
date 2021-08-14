@@ -34,10 +34,10 @@ namespace EventSourcing.Cosmos
                 payload.Remove("view");
                 payload.Remove("_etag");
 
-                var viewData = new
+                var viewData = new MaterialisedViewData
                 {
-                    id = name,
-                    view = view
+                    Id = name,
+                    View = payload
                 };
 
                 var partitionKey = new PartitionKey(name);
