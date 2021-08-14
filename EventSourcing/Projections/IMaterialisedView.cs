@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace EventSourcing.Projections
 {
@@ -8,6 +9,13 @@ namespace EventSourcing.Projections
     /// </summary>
     public interface IMaterialisedView
     {
+        /// <summary>
+        /// Represents the collection of event changes that were applied to arrive
+        /// at the current state of the view.
+        /// </summary>
+        [JsonProperty("changeset")]
+        public IList<string> Changeset { get; set; }
+
         /// <summary>
         /// The serialised view.
         /// </summary>

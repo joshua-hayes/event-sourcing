@@ -265,7 +265,8 @@ namespace EventSourcing.Infrastructure.Test
             // Assert
 
             mockContainer.Verify(c => c.UpsertItemAsync(It.Is<MaterialisedViewData>(item => !item.View.ContainsKey("_etag")
-                                                                                         && !item.View.ContainsKey("view")),
+                                                                                         && !item.View.ContainsKey("view")
+                                                                                         && !item.View.ContainsKey("changeset")),
                                                         It.IsAny<PartitionKey>(),
                                                         It.IsAny<ItemRequestOptions>(),
                                                         default));

@@ -57,6 +57,13 @@ namespace EventSourcing.Projections
                     var projection = (IEventProjection)Activator.CreateInstance(p, view);
                     projection.ApplyChange(@event);
 
+                    // Update view changeset
+
+                    var eventType = @event.EventType ?? @event.GetType().Name;
+                    var change = $"{eventType}:{@event.Version}";
+                    if (!view.Changeset.Contains(change))
+                        view.Changeset.Add(change);
+
                     bool saved = await _materialisedViewRepository.SaveViewAsync(viewName, projection.View);
                     if (!saved)
                     {

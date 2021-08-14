@@ -33,10 +33,12 @@ namespace EventSourcing.Cosmos
                 var payload = JObject.FromObject(view);
                 payload.Remove("view");
                 payload.Remove("_etag");
+                payload.Remove("changeset");
 
                 var viewData = new MaterialisedViewData
                 {
                     Id = name,
+                    Changeset = view.Changeset,
                     View = payload
                 };
 
