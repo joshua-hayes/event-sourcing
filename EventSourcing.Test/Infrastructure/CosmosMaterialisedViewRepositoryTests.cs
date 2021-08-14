@@ -178,5 +178,97 @@ namespace EventSourcing.Infrastructure.Test
             var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => sut.LoadViewAsync<TestView>(viewName));
             Assert.Equal("name", exception.ParamName);
         }
+
+        [Fact]
+        public async Task When_UpsertItemAsync_Fails_With_PreCondition_Failure_Expect_SaveViewAsync_Returns_False()
+        {
+            // Arrange
+
+            var mockContainer = new Mock<Container>();
+            mockContainer.Setup(c => c.UpsertItemAsync(It.IsAny<object>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), default))
+                         .Throws(new CosmosException(null, HttpStatusCode.PreconditionFailed, 0, "", 1));
+
+            _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
+                        .Returns(mockContainer.Object);
+
+            // Arrange
+
+            var view = new MaterialisedView();
+            
+            var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
+
+            // Act
+
+            bool saved = await sut.SaveViewAsync(_viewName, view);
+
+            // Assert
+
+            Assert.False(saved);
+            mockContainer.Verify(c => c.UpsertItemAsync(It.IsAny<object>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), default));
+        }
+
+        [Fact]
+        public async Task Expect_ItemRequestOptions_Sets_Etag_Precondition_When_UpsertItemAsync()
+        {
+            // Arrange
+
+            var mockContainer = new Mock<Container>();
+            var etag = "etag";
+            mockContainer.Setup(c => c.UpsertItemAsync(It.IsAny<object>(), It.IsAny<PartitionKey>(), It.Is<ItemRequestOptions>(o => o.IfMatchEtag == etag), default));
+
+            _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
+                        .Returns(mockContainer.Object);
+
+            // Arrange
+
+            var view = new MaterialisedView
+            {
+                Etag = etag
+            };
+
+            var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
+
+            // Act
+
+            _ = await sut.SaveViewAsync(_viewName, view);
+
+            // Assert
+
+            mockContainer.Verify(c => c.UpsertItemAsync(It.IsAny<object>(), It.IsAny<PartitionKey>(), It.Is<ItemRequestOptions>(o => o.IfMatchEtag == etag), default));
+        }
+
+        [Fact]
+        public async Task When_View_Is_Saved_Expect_View_And_ETag_Properties_Are_Ommitted_From_Materialised_View_Data()
+        {
+            // Arrange
+
+            var mockContainer = new Mock<Container>();
+            mockContainer.Setup(c => c.UpsertItemAsync(It.IsAny<object>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), default));
+
+            _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
+                        .Returns(mockContainer.Object);
+
+            // Arrange
+
+            var view = new TestView
+            {
+                Etag = "etag",
+                Name = "Test"
+            };
+
+            var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
+
+            // Act
+
+            _ = await sut.SaveViewAsync(_viewName, view);
+
+            // Assert
+
+            mockContainer.Verify(c => c.UpsertItemAsync(It.Is<MaterialisedViewData>(item => !item.View.ContainsKey("_etag")
+                                                                                         && !item.View.ContainsKey("view")),
+                                                        It.IsAny<PartitionKey>(),
+                                                        It.IsAny<ItemRequestOptions>(),
+                                                        default));
+        }
     }
 }
