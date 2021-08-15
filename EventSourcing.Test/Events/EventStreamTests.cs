@@ -1,5 +1,8 @@
 ﻿using EventSourcing.Events;
 using EventSourcing.Test.Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -25,7 +28,7 @@ namespace EventSourcing.Test.Events
             // Arrange
 
             var history = new List<IEventStreamEvent> {
-                new UserRegisteredEvent("Jack Mallers", 27)
+                new UserRegisteredEvent(Guid.NewGuid().ToString(), "Jack Mallers", 27)
                 {
                     EventType = nameof(UserRegisteredEvent),
                 }
@@ -44,10 +47,10 @@ namespace EventSourcing.Test.Events
 
             int expectedVersion = 2;
             var history = new List<IEventStreamEvent> {
-                new UserRegisteredEvent("Elon Musk", 50) {
+                new UserRegisteredEvent(Guid.NewGuid().ToString(), "Elon Musk", 50) {
                     Version = 1,
                 },
-                new UserRegisteredEvent("Alex Mashinsky", 55) {
+                new UserRegisteredEvent(Guid.NewGuid().ToString(), "Alex Mashinsky", 55) {
                     Version = 2,
                 }
             };
@@ -69,7 +72,7 @@ namespace EventSourcing.Test.Events
 
             int expectedHandlerValidation = 50;
             var history = new List<IEventStreamEvent> {
-                new UserRegisteredEvent("Elon Musk", expectedHandlerValidation)
+                new UserRegisteredEvent(Guid.NewGuid().ToString(), "Elon Musk", expectedHandlerValidation)
             };
             var stream = new UserEventStream();
 
@@ -87,11 +90,37 @@ namespace EventSourcing.Test.Events
         {
             // Arrange / Act
 
-            var stream = new UserEventStream();
+            var stream = new UserEventStream(Guid.NewGuid().ToString(), "Elon Musk", 50);
 
             // Assert
 
             Assert.NotEmpty(stream.UncommittedChanges);
+        }
+
+        [Fact]
+        public void Expect_LoadState_Restores_StreamId_Version_Name_And_Age()
+        {
+            // Arrange
+
+            var eventStream = new UserEventStream();
+            var streamId = Guid.NewGuid().ToString();
+            var version = 2;
+            var name = "Elon Musk";
+            var age = 50;
+            var stateStr = $"{{'streamId': '{streamId}', 'version': {version}, 'name': '{name}', 'age': {age}}}";
+            var state = JObject.Parse(stateStr);
+            var memento = new SnapshotMemento(state);
+
+            // Act
+
+            eventStream.LoadFromSnapshot(memento);
+
+            // Assert
+
+            Assert.Equal(streamId, eventStream.StreamId);
+            Assert.Equal(version, eventStream.Version);
+            Assert.Equal(name, eventStream.Name);
+            Assert.Equal(age, eventStream.Age);
         }
     }
 }

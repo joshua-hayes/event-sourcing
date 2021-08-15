@@ -4,8 +4,9 @@ namespace EventSourcing.Test.Data
 {
     public class UserRegisteredEvent : EventStreamEvent
     {
-        public UserRegisteredEvent(string name, int age)
+        public UserRegisteredEvent(string streamId, string name, int age)
         {
+            StreamId = streamId;
             Age = age;
             Name = name;
         }

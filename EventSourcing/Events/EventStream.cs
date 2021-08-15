@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace EventSourcing.Events
 {
     /// <summary>
     /// Represents a stream of events that exist within the same aggregate root.
     /// </summary>
-    public abstract class EventStream
+    public abstract class EventStream : ISnapshotable
     {
         private readonly List<IEventStreamEvent> _events;
+        protected JObject _snapshot;
 
         public EventStream()
         {
@@ -17,17 +20,18 @@ namespace EventSourcing.Events
         /// <summary>
         /// The unique stream identifier.
         /// </summary>
-        public string StreamId { get; private set; }
+        public string StreamId { get; set; }
 
         /// <summary>
         /// The current event stream version.
         /// </summary>
-        public int Version { get; private set; }
+        public int Version { get; set; }
 
         /// <summary>
         ///     Gets the uncommitted changes.
         /// </summary>
         /// <returns>A list of uncommitted changes.</returns>
+        [JsonIgnore]
         public IEnumerable<IEventStreamEvent> UncommittedChanges => _events;
 
         /// <summary>
@@ -58,6 +62,34 @@ namespace EventSourcing.Events
             {
                 throw new EventStreamHandlerException(@event);
             }
+        }
+
+        /// <summary>
+        /// <see cref="ISnapshotable.IsSnapshotable"/>
+        /// </summary>
+        /// <remarks>Override if you plan to support snapshots.</remarks>
+        public virtual bool IsSnapshotable => false;
+
+        /// <summary>
+        /// <see cref="ISnapshotable.SaveToSnapshot"/>
+        /// </summary>
+        public SnapshotMemento SaveToSnapshot()
+        {
+            var state = JObject.FromObject(this);
+            var memento = new SnapshotMemento(state);
+
+            return memento;
+        }
+
+        /// <summary>
+        /// <see cref="ISnapshotable.LoadFromSnapshot(SnapshotMemento)"/>
+        /// </summary>
+        /// <remarks>Override if you plan to support snapshots.</remarks>
+        public virtual void LoadFromSnapshot(SnapshotMemento memento)
+        {
+            _snapshot = memento.State;
+            StreamId = _snapshot.GetValue("streamId")?.Value<string>();
+            Version = _snapshot.GetValue("version")?.Value<int>() ?? 0;
         }
     }
 }
