@@ -1,5 +1,7 @@
-﻿using EventSourcing.Projections;
+﻿using EventSourcing.Cosmos;
+using EventSourcing.Projections;
 using EventSourcing.Test.Data;
+using Microsoft.Azure.Cosmos;
 using Moq;
 using System;
 using System.Reflection;
@@ -28,7 +30,7 @@ namespace EventSourcing.Test.Projections
         {
             // Arrange
 
-            var @event = new UserRegisteredEvent("John Carmack", 50);
+            var @event = new UserRegisteredEvent(Guid.NewGuid().ToString(), "John Carmack", 50);
             var mockMaterialisedViewRepository = new Mock<IMaterialisedViewRepository>();
             var sut = new MaterialisedViewProjectionEngine(Assembly.GetExecutingAssembly(), null);
 
@@ -42,7 +44,7 @@ namespace EventSourcing.Test.Projections
         {
             // Arrange
 
-            var @event = new UserRegisteredEvent("John Carmack", 50);
+            var @event = new UserRegisteredEvent(Guid.NewGuid().ToString(), "John Carmack", 50);
             var mockMaterialisedViewRepository = new Mock<IMaterialisedViewRepository>();
             mockMaterialisedViewRepository.Setup(r => r.LoadViewAsync(It.IsAny<string>(), It.IsAny<Type>())).ReturnsAsync(new TestView());
             mockMaterialisedViewRepository.Setup(r => r.SaveViewAsync(It.IsAny<string>(), It.IsAny<MaterialisedView>())).ReturnsAsync(false);
