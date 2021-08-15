@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("EventSourcing.Test")]
 namespace EventSourcing.Events
 {
     /// <summary>

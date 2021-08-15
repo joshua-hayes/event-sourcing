@@ -98,7 +98,32 @@ namespace EventSourcing.Test.Events
         }
 
         [Fact]
-        public void Expect_LoadState_Restores_StreamId_Version_Name_And_Age()
+        public void Expect_SaveToSnapshot_Saves_StreamId_Version_Name_And_Age_As_JObject()
+        {
+            // Arrange
+
+            var eventStream = new UserEventStream();
+            var history = new List<IEventStreamEvent> {
+                new UserRegisteredEvent(Guid.NewGuid().ToString(), "Elon Musk", 50) {
+                    Version = 1
+                }
+            };
+            eventStream.LoadFromHistory(history);
+
+            // Act
+
+            var snapshot = eventStream.SaveToSnapshot();
+
+            // Assert
+            
+            Assert.Equal(eventStream.StreamId, snapshot.State.GetValue("StreamId")?.Value<string>());
+            Assert.Equal(eventStream.Version, snapshot.State.GetValue("Version")?.Value<int>());
+            Assert.Equal(eventStream.Name, snapshot.State.GetValue("Name")?.Value<string>());
+            Assert.Equal(eventStream.Age, snapshot.State.GetValue("Age")?.Value<int>());
+        }
+
+        [Fact]
+        public void Expect_LoadFromSnapshot_Restores_StreamId_Version_Name_And_Age()
         {
             // Arrange
 
