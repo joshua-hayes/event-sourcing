@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Events;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.Test.Data
 {
@@ -11,7 +12,10 @@ namespace EventSourcing.Test.Data
             Name = name;
         }
 
+        [JsonPropertyName("age")]
         public int Age { get; set; }
+
+        [JsonPropertyName("name")]
         public string Name { get; set; }
     }
 }

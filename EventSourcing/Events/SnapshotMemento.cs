@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 [assembly: InternalsVisibleTo("EventSourcing.Test")]
 namespace EventSourcing.Events
@@ -9,9 +10,9 @@ namespace EventSourcing.Events
     /// </summary>
     public class SnapshotMemento
     {
-        private JObject _state;
+        private JsonDocument _state;
 
-        public SnapshotMemento(JObject state)
+        public SnapshotMemento(JsonDocument state)
         {
             _state = state;
         }
@@ -20,6 +21,11 @@ namespace EventSourcing.Events
         /// The scoping here ensures the private state stays well encapsulated and cannot
         /// be accessed outside of this framework namespace.
         /// </summary>
-        internal JObject State => _state;
+        internal JsonDocument State => _state;
+
+        // Add a method to get the JsonElement
+        public JsonElement GetState() {
+            return _state.RootElement;
+        }
     }
 }

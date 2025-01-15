@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.Events
 {
@@ -11,25 +11,25 @@ namespace EventSourcing.Events
         /// <summary>
         /// The unique event identifier.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// The type of event.
         /// </summary>
-        [JsonProperty("eventType")]
+        [JsonPropertyName("eventType")]
         public string EventType { get; set; }
 
         /// <summary>
         /// The time the event was created.
         /// </summary>
-        [JsonProperty("eventTime")]
+        [JsonPropertyName("eventTime")]
         public DateTime EventTime { get; set; }
 
         /// <summary>
         /// The version associated with the event within the event stream.
         /// </summary>
-        [JsonProperty("version")]
+        [JsonPropertyName("version")]
         public int Version { get; set; }
     }
 
@@ -38,7 +38,7 @@ namespace EventSourcing.Events
         /// <summary>
         /// The main event data / payload.
         /// </summary>
-        [JsonProperty("data")]
+        [JsonPropertyName("data")]
         public T Data { get; set; }
     }
 }

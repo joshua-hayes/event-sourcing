@@ -52,7 +52,7 @@ namespace EventSourcing.Infrastructure.Test
 
             Assert.NotNull(view);
             Assert.IsType<TestView>(view);
-            Assert.Equal(new JObject(), view.View);
+            Assert.Equal(JsonDocument.Parse("{}").ToString(), view.View.ToString());
             Assert.Null(view.Etag);
         }
 
@@ -133,7 +133,7 @@ namespace EventSourcing.Infrastructure.Test
 
             Assert.NotNull(view);
             Assert.IsType<TestView>(view);
-            Assert.Equal(new JObject(), view.View);
+            Assert.Equal(JsonDocument.Parse("{}").ToString(), view.View.ToString());
             Assert.Null(view.Etag);
         }
 

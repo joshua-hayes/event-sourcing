@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.Projections
 {
@@ -13,20 +13,20 @@ namespace EventSourcing.Projections
         /// Represents the collection of event changes that were applied to arrive
         /// at the current state of the view.
         /// </summary>
-        [JsonProperty("changeset")]
+        [JsonPropertyName("changeset")]
         public IList<string> Changeset { get; set; }
 
         /// <summary>
         /// The serialised view.
         /// </summary>
-        [JsonProperty("view")]
-        JObject View { get; set; }
+        [JsonPropertyName("view")]
+        JsonDocument View { get; set; }
 
         /// <summary>
         /// The entity tag associated with the view that can be used for
         /// optimistic concurrency control.
         /// </summary>
-        [JsonProperty("_etag")]
+        [JsonPropertyName("_etag")]
         public string Etag { get; set; }
     }
 }

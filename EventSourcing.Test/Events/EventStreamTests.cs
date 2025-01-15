@@ -1,9 +1,11 @@
 ﻿using EventSourcing.Events;
 using EventSourcing.Test.Data;
+using EventSourcing.Test.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Xunit;
 
 namespace EventSourcing.Test.Events
@@ -115,11 +117,10 @@ namespace EventSourcing.Test.Events
             var snapshot = eventStream.SaveToSnapshot();
 
             // Assert
-            
-            Assert.Equal(eventStream.StreamId, snapshot.State.GetValue("StreamId")?.Value<string>());
-            Assert.Equal(eventStream.Version, snapshot.State.GetValue("Version")?.Value<int>());
-            Assert.Equal(eventStream.Name, snapshot.State.GetValue("Name")?.Value<string>());
-            Assert.Equal(eventStream.Age, snapshot.State.GetValue("Age")?.Value<int>());
+            Assert.Equal(eventStream.StreamId, snapshot.GetState().GetValue<string>("StreamId"));
+            Assert.Equal(eventStream.Version, snapshot.GetState().GetValue<int>("Version"));
+            Assert.Equal(eventStream.Name, snapshot.GetState().GetValue<string>("Name"));
+            Assert.Equal(eventStream.Age, snapshot.GetState().GetValue<int>("Age"));
         }
 
         [Fact]
@@ -132,8 +133,17 @@ namespace EventSourcing.Test.Events
             var version = 2;
             var name = "Elon Musk";
             var age = 50;
-            var stateStr = $"{{'streamId': '{streamId}', 'version': {version}, 'name': '{name}', 'age': {age}}}";
-            var state = JObject.Parse(stateStr);
+            var stateStr = $@"
+            {{
+                ""streamId"": ""{streamId}"",
+                ""version"": {version},
+                ""name"": ""{name}"",
+                ""age"": {age}
+            }}";
+
+            Console.WriteLine(stateStr);
+
+            var state = JsonDocument.Parse(stateStr);
             var memento = new SnapshotMemento(state);
 
             // Act

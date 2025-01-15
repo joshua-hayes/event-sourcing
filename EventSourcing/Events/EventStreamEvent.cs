@@ -1,29 +1,29 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.Events
 {
     public class EventStreamEvent : IEventStreamEvent
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("streamId")]
+        [JsonPropertyName("streamId")]
         public string StreamId { get; set; }
 
-        [JsonProperty("eventTime")]
+        [JsonPropertyName("eventTime")]
         public DateTime EventTime { get; set; } = DateTime.UtcNow;
 
-        [JsonProperty("eventType")]
+        [JsonPropertyName("eventType")]
         public string EventType { get; set; }
 
-        [JsonProperty("version")]
+        [JsonPropertyName("version")]
         public int Version { get; set; }
     }
 
     public class EventStreamEvent<T> : EventStreamEvent
     {
-        [JsonProperty("data")]
+        [JsonPropertyName("data")]
         public T Data { get; set; }
     }
 }

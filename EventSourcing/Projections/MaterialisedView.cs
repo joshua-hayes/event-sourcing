@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 
 namespace EventSourcing.Projections
 {
@@ -10,11 +9,11 @@ namespace EventSourcing.Projections
     /// </summary>
     public class MaterialisedView : IMaterialisedView
     {
-        public MaterialisedView() : this(new JObject(), null, new List<string>())
+        public MaterialisedView() : this(JsonDocument.Parse("{}"), null, new List<string>())
         {
         }
 
-        public MaterialisedView(JObject view, string etag, IList<string> changeset)
+        public MaterialisedView(JsonDocument view, string etag, IList<string> changeset)
         {
             Etag = etag;
             Changeset = changeset;
@@ -34,6 +33,6 @@ namespace EventSourcing.Projections
         /// <summary>
         /// <see cref="IMaterialisedView.View"/>
         /// </summary>
-        public JObject View { get; set; }
+        public JsonDocument View { get; set; }
     }
 }

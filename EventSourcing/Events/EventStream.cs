@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.Events
 {
@@ -10,7 +11,7 @@ namespace EventSourcing.Events
     public abstract class EventStream : ISnapshotable
     {
         private readonly List<IEventStreamEvent> _events;
-        protected JObject _snapshot;
+        protected JsonDocument _snapshot;
 
         public EventStream()
         {
@@ -58,7 +59,8 @@ namespace EventSourcing.Events
                     _events.Add(@event);
                 else
                     Version = @event.Version;
-            } catch
+            }
+            catch
             {
                 throw new EventStreamHandlerException(@event);
             }
@@ -75,11 +77,21 @@ namespace EventSourcing.Events
         /// </summary>
         public SnapshotMemento SaveToSnapshot()
         {
-            var state = JObject.FromObject(this);
-            var memento = new SnapshotMemento(state);
+            // This isn't very efficient. It uses reflection to gather all properties from the derived class into a dictionary before
+            // serialising. The default behaviour for the JsonSerializer.Serialize(this) doesn't include derived properties
+            //    var jsonString = JsonSerializer.Serialize(this, options);
+            var properties = this.GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(this));
+            var jsonString = JsonSerializer.Serialize(properties,
+                                                      new JsonSerializerOptions {
+                                                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                                                        WriteIndented = true
+                                                      });
 
-            return memento;
-        }
+            var jsonDocument = JsonDocument.Parse(jsonString);
+            var memento = new SnapshotMemento(jsonDocument);
+
+            return memento; }
+
 
         /// <summary>
         /// <see cref="ISnapshotable.LoadFromSnapshot(SnapshotMemento)"/>
@@ -87,9 +99,10 @@ namespace EventSourcing.Events
         /// <remarks>Override if you plan to support snapshots.</remarks>
         public virtual void LoadFromSnapshot(SnapshotMemento memento)
         {
-            _snapshot = memento.State;
-            StreamId = _snapshot.GetValue("streamId")?.Value<string>();
-            Version = _snapshot.GetValue("version")?.Value<int>() ?? 0;
+            _snapshot = JsonDocument.Parse(memento.GetState().ToString());
+
+            StreamId = _snapshot.RootElement.GetProperty("streamId").GetString();
+            Version = _snapshot.RootElement.GetProperty("version").GetInt32();
         }
     }
 }
