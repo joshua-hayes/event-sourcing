@@ -1,7 +1,5 @@
 using EventSourcing.Events;
-using EventSourcing.Test.Data;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace EventSourcing.Test.Events

@@ -3,12 +3,10 @@ using EventSourcing.Projections;
 using EventSourcing.Test.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
-using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -37,7 +35,7 @@ namespace EventSourcing.Infrastructure.Test
             // Arrange
 
             var mockContainer = new Mock<Container>();
-            mockContainer.Setup(c => c.ReadItemAsync<JObject>(_viewName, It.IsAny<PartitionKey>(), null, default))
+            mockContainer.Setup(c => c.ReadItemAsync<JsonObject>(_viewName, It.IsAny<PartitionKey>(), null, default))
                          .Throws(new CosmosException(null, HttpStatusCode.NotFound, 0, "", 1));
             _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
                         .Returns(mockContainer.Object);
@@ -61,14 +59,15 @@ namespace EventSourcing.Infrastructure.Test
         {
             // Arrange
 
-            var serialisedView = "{ 'name': 'Jack Dorsey'}";
-            var mockItemResponse = new Mock<ItemResponse<JObject>>();
-            mockItemResponse.Setup(r => r.Resource).Returns(JObject.Parse(serialisedView));
+            var serialisedView = "{ \"name\": \"Jack Dorsey\"}";
+            var jsonObject = JsonNode.Parse(serialisedView) as JsonObject;
+            var mockItemResponse = new Mock<ItemResponse<JsonObject>>();
+            mockItemResponse.Setup(r => r.Resource).Returns(jsonObject);
 
             var mockContainer = new Mock<Container>();
             _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
                         .Returns(mockContainer.Object);
-            mockContainer.Setup(c => c.ReadItemAsync<JObject>(_viewName, It.IsAny<PartitionKey>(), null, default))
+            mockContainer.Setup(c => c.ReadItemAsync<JsonObject>(_viewName, It.IsAny<PartitionKey>(), null, default))
                          .ReturnsAsync(mockItemResponse.Object);
 
             var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
@@ -141,28 +140,27 @@ namespace EventSourcing.Infrastructure.Test
         public async Task When_Container_Generic_ReadItemAsync_Returns_View_Expect_View_Property_Is_Set()
         {
             // Arrange
+            var serialisedView = "{ \"name\": \"Jack Dorsey\" }";
+            var view = JsonSerializer.Deserialize<TestView>(serialisedView);
 
-            var serialisedView = "{ 'name': 'Jack Dorsey'}";
             var mockItemResponse = new Mock<ItemResponse<TestView>>();
-            mockItemResponse.Setup(r => r.Resource).Returns(JsonConvert.DeserializeObject<TestView>(serialisedView));
+            mockItemResponse.Setup(r => r.Resource).Returns(view);
 
             var mockContainer = new Mock<Container>();
             _cosmosClient.Setup(c => c.GetContainer(_databaseId, _containerId))
-                        .Returns(mockContainer.Object);
+                         .Returns(mockContainer.Object);
             mockContainer.Setup(c => c.ReadItemAsync<TestView>(_viewName, It.IsAny<PartitionKey>(), null, default))
                          .ReturnsAsync(mockItemResponse.Object);
 
             var sut = new CosmosMaterialisedViewRepository(_cosmosClient.Object, _databaseId, _containerId);
 
             // Act
-
-            var view = await sut.LoadViewAsync<TestView>(_viewName) as TestView;
+            var resultView = await sut.LoadViewAsync<TestView>(_viewName) as TestView;
 
             // Assert
-
-            Assert.NotNull(view);
-            Assert.IsType<TestView>(view);
-            Assert.Equal("Jack Dorsey", view.Name);
+            Assert.NotNull(resultView);
+            Assert.IsType<TestView>(resultView);
+            Assert.Equal("Jack Dorsey", resultView.Name);
         }
 
         [Fact]

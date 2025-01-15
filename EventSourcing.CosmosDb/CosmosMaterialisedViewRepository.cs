@@ -1,8 +1,9 @@
 ﻿using EventSourcing.Projections;
 using Microsoft.Azure.Cosmos;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace EventSourcing.CosmosDb
@@ -30,7 +31,9 @@ namespace EventSourcing.CosmosDb
         {
             try
             {
-                var payload = JObject.FromObject(view);
+                var jsonString = JsonSerializer.Serialize(view);
+                var payload = JsonNode.Parse(jsonString) as JsonObject;
+
                 payload.Remove("view");
                 payload.Remove("_etag");
                 payload.Remove("changeset");
@@ -92,9 +95,10 @@ namespace EventSourcing.CosmosDb
             try
             {
                 var partitionKey = new PartitionKey(name);
-                var response = await _container.ReadItemAsync<JObject>(name, partitionKey);
+                var response = await _container.ReadItemAsync<JsonObject>(name, partitionKey);
 
-                var view = (MaterialisedView)response.Resource.ToObject(type);
+                //var view = (MaterialisedView)response.Resource.ToObject(type);
+                var view = (MaterialisedView)JsonSerializer.Deserialize(response.Resource.ToJsonString(), type);
 
                 return view;
             }

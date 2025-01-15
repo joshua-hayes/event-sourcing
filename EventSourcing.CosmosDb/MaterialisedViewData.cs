@@ -1,19 +1,20 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.CosmosDb
 {
     public class MaterialisedViewData
     {
-        [JsonProperty("id", Order = 1)]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("changeset", Order = 2)]
+        [JsonPropertyName("changeset")]
         public IList<string> Changeset { get; internal set; }
 
-        [JsonProperty("view", Order = 3)]
-        public JObject View { get; set; }
+        [JsonPropertyName("view")]
+        public JsonObject View { get; set; }
 
     }
 }

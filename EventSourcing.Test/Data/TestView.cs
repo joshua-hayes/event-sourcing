@@ -1,15 +1,15 @@
 ﻿using EventSourcing.Projections;
-using Newtonsoft.Json;
 using System;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.Test.Data
 {
     public class TestView : MaterialisedView
     {
-        [JsonProperty("name")]
-        public string Name { get; internal set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
 
-        [JsonProperty("registered")]
-        public DateTime Registered { get; internal set; }
+        [JsonPropertyName("registered")]
+        public DateTime Registered { get; set; }
     }
 }

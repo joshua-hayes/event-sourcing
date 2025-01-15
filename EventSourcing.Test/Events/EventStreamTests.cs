@@ -1,8 +1,6 @@
 ﻿using EventSourcing.Events;
 using EventSourcing.Test.Data;
 using EventSourcing.Test.Extensions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
