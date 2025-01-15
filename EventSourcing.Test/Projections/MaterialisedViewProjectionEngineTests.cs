@@ -1,5 +1,4 @@
-﻿using EventSourcing.Cosmos;
-using EventSourcing.Projections;
+﻿using EventSourcing.Projections;
 using EventSourcing.Test.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;

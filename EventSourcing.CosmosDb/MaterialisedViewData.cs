@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-namespace EventSourcing.Cosmos
+namespace EventSourcing.CosmosDb
 {
     public class MaterialisedViewData
     {

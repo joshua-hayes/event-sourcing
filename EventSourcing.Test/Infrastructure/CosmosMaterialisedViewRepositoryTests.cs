@@ -1,4 +1,4 @@
-﻿using EventSourcing.Cosmos;
+﻿using EventSourcing.CosmosDb;
 using EventSourcing.Projections;
 using EventSourcing.Test.Data;
 using Microsoft.Azure.Cosmos;

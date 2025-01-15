@@ -5,7 +5,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace EventSourcing.Cosmos
+namespace EventSourcing.CosmosDb
 {
     /// <summary>
     /// Stores and saves <see cref="MaterialisedView"/>'s  in a cosomos view container.
