@@ -21,9 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventSourcing.CosmosDb\EventSourcing.CosmosDb.csproj" />
-    <ProjectReference Include="..\EventSourcing.Projection.Abstractions\EventSourcing.Projection.Abstractions.csproj" />
-    <ProjectReference Include="..\EventSourcing\EventSourcing.csproj" />
+    <ProjectReference Include="..\..\src\EventSourcing.CosmosDb\EventSourcing.CosmosDb.csproj" />
+    <ProjectReference Include="..\..\src\EventSourcing.Projection.Abstractions\EventSourcing.Projection.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EventSourcing\EventSourcing.csproj" />
   </ItemGroup>
 
 </Project>
