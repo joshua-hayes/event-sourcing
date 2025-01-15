@@ -2,7 +2,7 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.Test.Data
+namespace EventSourcing.Projection.Tests.Data
 {
     public class TestView : MaterialisedView
     {

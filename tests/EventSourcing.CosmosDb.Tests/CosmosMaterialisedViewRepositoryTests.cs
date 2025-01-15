@@ -1,5 +1,6 @@
 ﻿using EventSourcing.CosmosDb;
 using EventSourcing.Projection;
+using EventSourcing.Projection.Tests.Data;
 using EventSourcing.Test.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
@@ -10,7 +11,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace EventSourcing.Infrastructure.Test
+namespace EventSourcing.CosmosDb.Tests
 {
     public class CosmosMaterialisedViewRepositoryTests
     {

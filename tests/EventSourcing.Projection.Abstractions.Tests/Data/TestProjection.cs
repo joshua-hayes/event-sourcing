@@ -1,7 +1,8 @@
 ﻿using EventSourcing.Events;
 using EventSourcing.Projection;
+using EventSourcing.Test.Data;
 
-namespace EventSourcing.Test.Data
+namespace EventSourcing.Projection.Tests.Data
 {
     public class TestProjection : EventProjection<TestView>,
                                   IEventHandler<UserRegisteredEvent>

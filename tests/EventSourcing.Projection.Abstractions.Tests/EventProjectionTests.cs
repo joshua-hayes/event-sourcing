@@ -1,8 +1,9 @@
 ﻿using EventSourcing.Projection;
+using EventSourcing.Projection.Tests.Data;
 using EventSourcing.Test.Data;
 using Xunit;
 
-namespace EventSourcing.Test.Projections
+namespace EventSourcing.Projection.Tests
 {
     public class EventProjectionTests
     {

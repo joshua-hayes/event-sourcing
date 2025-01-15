@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Projection;
+using EventSourcing.Projection.Tests.Data;
 using EventSourcing.Test.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
@@ -7,7 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace EventSourcing.Test.Projections
+namespace EventSourcing.Projection.Tests
 {
     public class MaterialisedViewProjectionEngineTests
     {

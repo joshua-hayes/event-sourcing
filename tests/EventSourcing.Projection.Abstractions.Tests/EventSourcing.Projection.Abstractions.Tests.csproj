@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventSourcing.Projection.Abstractions.Tests\EventSourcing.Projection.Abstractions.Tests.csproj" />
     <ProjectReference Include="..\EventSourcing.Test\EventSourcing.Test.csproj" />
   </ItemGroup>
 
