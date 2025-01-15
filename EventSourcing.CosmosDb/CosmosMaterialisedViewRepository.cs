@@ -1,4 +1,4 @@
-﻿using EventSourcing.Projections;
+﻿using EventSourcing.Projection;
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Net;

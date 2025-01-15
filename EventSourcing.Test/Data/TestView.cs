@@ -1,4 +1,4 @@
-﻿using EventSourcing.Projections;
+﻿using EventSourcing.Projection;
 using System;
 using System.Text.Json.Serialization;
 

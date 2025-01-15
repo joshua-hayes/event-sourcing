@@ -1,5 +1,5 @@
 ﻿using EventSourcing.Events;
-using EventSourcing.Projections;
+using EventSourcing.Projection;
 
 namespace EventSourcing.Test.Data
 {

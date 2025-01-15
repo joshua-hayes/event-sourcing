@@ -1,4 +1,4 @@
-﻿using EventSourcing.Projections;
+﻿using EventSourcing.Projection;
 using EventSourcing.Test.Data;
 using Xunit;
 
