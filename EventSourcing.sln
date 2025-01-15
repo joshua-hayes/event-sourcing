@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Abstractions", "Abstraction
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Projection.Abstractions", "src\EventSourcing.Projection.Abstractions\EventSourcing.Projection.Abstractions.csproj", "{CD78445B-E20D-4D0A-ACA1-FEC9377202EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.CosmosDb.Tests", "tests\EventSourcing.CosmosDb.Tests\EventSourcing.CosmosDb.Tests.csproj", "{0D40665D-4802-4FE7-B4EF-92EC82DF894D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{CD78445B-E20D-4D0A-ACA1-FEC9377202EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD78445B-E20D-4D0A-ACA1-FEC9377202EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD78445B-E20D-4D0A-ACA1-FEC9377202EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D40665D-4802-4FE7-B4EF-92EC82DF894D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D40665D-4802-4FE7-B4EF-92EC82DF894D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D40665D-4802-4FE7-B4EF-92EC82DF894D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D40665D-4802-4FE7-B4EF-92EC82DF894D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{9F8A9BF8-C7FD-4D9E-9E84-AF3340194C81} = {831F89F2-0FD6-4DDE-9819-A99B2D207C6E}
 		{CEAA0237-931B-4428-BDC9-1B6877E78168} = {0EFC1A99-8042-42D1-82D7-507318845212}
 		{CD78445B-E20D-4D0A-ACA1-FEC9377202EB} = {831F89F2-0FD6-4DDE-9819-A99B2D207C6E}
+		{0D40665D-4802-4FE7-B4EF-92EC82DF894D} = {9701B113-9660-4643-AFA8-FE787902F3A2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4AFD14DC-99D7-40B7-B63F-F48B97B1B86E}
