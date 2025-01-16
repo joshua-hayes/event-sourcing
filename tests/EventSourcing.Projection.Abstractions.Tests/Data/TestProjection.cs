@@ -5,7 +5,8 @@ using EventSourcing.Test.Data;
 namespace EventSourcing.Projection.Tests.Data
 {
     public class TestProjection : EventProjection<TestView>,
-                                  IEventHandler<UserRegisteredEvent>
+                                  IEventHandler<TestEvent1>,
+                                  IEventHandler<TestEvent2>
     {
         public TestProjection(TestView view) : base(view)
         {
@@ -16,10 +17,16 @@ namespace EventSourcing.Projection.Tests.Data
             return typeof(TestView).Name + ":1";
         }
 
-        public void Handle(UserRegisteredEvent @event)
+        public void Handle(TestEvent1 @event)
         {
-            View.Name = @event.Name;
-            View.Registered = @event.EventTime;
+            View.Field1 = @event.Field1;
+            View.Field2 = @event.Field2;
+        }
+
+        public void Handle(TestEvent2 @event)
+        {
+            View.Field3 = @event.Field3;
+            View.Field4 = @event.Field4;
         }
     }
 }

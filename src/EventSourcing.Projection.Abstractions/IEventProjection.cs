@@ -8,7 +8,7 @@ namespace EventSourcing.Projection
     public interface IEventProjection
     {
         /// <summary>
-        /// Projects an event stream event onto the managed view.
+        /// Projects an event stream event onto the managed view and computes an updated changeset.
         /// </summary>
         /// <param name="event">The event to apply.</param>
         void ApplyChange(IEventStreamEvent @event);

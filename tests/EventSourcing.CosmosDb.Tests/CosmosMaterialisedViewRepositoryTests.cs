@@ -1,6 +1,6 @@
 ﻿using EventSourcing.CosmosDb;
+using EventSourcing.CosmosDb.Tests.Data;
 using EventSourcing.Projection;
-using EventSourcing.Projection.Tests.Data;
 using EventSourcing.Test.Data;
 using Microsoft.Azure.Cosmos;
 using Moq;
