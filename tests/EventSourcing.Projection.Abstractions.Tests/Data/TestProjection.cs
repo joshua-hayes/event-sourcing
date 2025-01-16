@@ -8,7 +8,7 @@ namespace EventSourcing.Projection.Tests.Data
                                   IEventHandler<TestEvent1>,
                                   IEventHandler<TestEvent2>
     {
-        public TestProjection(TestView view) : base(view)
+        public TestProjection(TestView view, int maxChangesetSize = 10) : base(view, maxChangesetSize)
         {
         }
 

@@ -10,12 +10,14 @@ namespace EventSourcing.Projection
     /// Base class for a projection that projects event changes onto a materialised view.
     /// </summary>
     /// <typeparam name="TMaterialisedView">The type of view.</typeparam>
+    /// <typeparam name="maxChangesetSize">The maximum number of changes that can be tracked.</typeparam>
     public abstract class EventProjection<TMaterialisedView> : IEventProjection where TMaterialisedView : MaterialisedView, new()
     {
-        private const int MaxChangesetSize = 10; // Todo refactor out to configuration
+        private int _maxChangesetSize;
 
-        protected EventProjection(TMaterialisedView view)
+        protected EventProjection(TMaterialisedView view, int maxChangesetSize = 10)
         {
+            _maxChangesetSize = maxChangesetSize;
             View = view;
         }
 
@@ -53,7 +55,7 @@ namespace EventSourcing.Projection
 
                 if (!View.Changeset.Contains(change)) {
                     View.Changeset.Add(change);
-                    if (View.Changeset.Count > MaxChangesetSize)
+                    if (View.Changeset.Count > _maxChangesetSize)
                     {
                         // Maintain bounded size to prevent the changeset from bloating
                         // the view size.
