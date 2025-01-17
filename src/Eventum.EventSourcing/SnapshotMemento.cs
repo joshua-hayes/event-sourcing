@@ -23,7 +23,6 @@ namespace Eventum.EventSourcing
         /// </summary>
         internal JsonDocument State => _state;
 
-        // Add a method to get the JsonElement
         public JsonElement GetState() {
             return _state.RootElement;
         }

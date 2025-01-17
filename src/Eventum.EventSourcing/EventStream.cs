@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -36,6 +37,12 @@ namespace Eventum.EventSourcing
         public IEnumerable<IEventStreamEvent> UncommittedChanges => _events;
 
         /// <summary>
+        /// <see cref="ISnapshotable.IsSnapshotable"/>
+        /// </summary>
+        /// <remarks>Override if you plan to support snapshots.</remarks>
+        public virtual bool IsSnapshotable => false;
+
+        /// <summary>
         ///     Loads the event stream from history.
         /// </summary>
         /// <param name="history">The history of events to load.</param>
@@ -43,6 +50,33 @@ namespace Eventum.EventSourcing
         {
             foreach (var e in history)
                 ApplyChange(e, false);
+        }
+
+        public virtual void LoadFromSnapshot(SnapshotMemento memento)
+        {
+            _snapshot = JsonDocument.Parse(memento.GetState().ToString());
+
+            StreamId = _snapshot.RootElement.GetProperty("streamId").GetString();
+            Version = _snapshot.RootElement.GetProperty("version").GetInt32();
+        }
+
+        public SnapshotMemento SaveToSnapshot()
+        {
+            // This isn't very efficient. It uses reflection to gather all properties from the derived class into a dictionary before
+            // serialising. The default behaviour for the JsonSerializer.Serialize(this) doesn't include derived properties
+            //    var jsonString = JsonSerializer.Serialize(this, options);
+            var properties = GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(this));
+            var jsonString = JsonSerializer.Serialize(properties,
+                                                      new JsonSerializerOptions
+                                                      {
+                                                          DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                                                          WriteIndented = true
+                                                      });
+
+            var jsonDocument = JsonDocument.Parse(jsonString);
+            var memento = new SnapshotMemento(jsonDocument);
+
+            return memento;
         }
 
         /// <summary>
@@ -64,47 +98,6 @@ namespace Eventum.EventSourcing
             {
                 throw new EventStreamHandlerException(@event);
             }
-        }
-
-        /// <summary>
-        /// <see cref="ISnapshotable.IsSnapshotable"/>
-        /// </summary>
-        /// <remarks>Override if you plan to support snapshots.</remarks>
-        public virtual bool IsSnapshotable => false;
-
-        /// <summary>
-        /// <see cref="ISnapshotable.SaveToSnapshot"/>
-        /// </summary>
-        public SnapshotMemento SaveToSnapshot()
-        {
-            // This isn't very efficient. It uses reflection to gather all properties from the derived class into a dictionary before
-            // serialising. The default behaviour for the JsonSerializer.Serialize(this) doesn't include derived properties
-            //    var jsonString = JsonSerializer.Serialize(this, options);
-            var properties = GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(this));
-            var jsonString = JsonSerializer.Serialize(properties,
-                                                      new JsonSerializerOptions
-                                                      {
-                                                          DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                                                          WriteIndented = true
-                                                      });
-
-            var jsonDocument = JsonDocument.Parse(jsonString);
-            var memento = new SnapshotMemento(jsonDocument);
-
-            return memento;
-        }
-
-
-        /// <summary>
-        /// <see cref="ISnapshotable.LoadFromSnapshot(SnapshotMemento)"/>
-        /// </summary>
-        /// <remarks>Override if you plan to support snapshots.</remarks>
-        public virtual void LoadFromSnapshot(SnapshotMemento memento)
-        {
-            _snapshot = JsonDocument.Parse(memento.GetState().ToString());
-
-            StreamId = _snapshot.RootElement.GetProperty("streamId").GetString();
-            Version = _snapshot.RootElement.GetProperty("version").GetInt32();
         }
     }
 }
