@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Eventum.Projection
+namespace Eventum.Persistence.Abstractions
 {
     /// <summary>
     /// Maintains an up to date serialised version of a view that can be updated

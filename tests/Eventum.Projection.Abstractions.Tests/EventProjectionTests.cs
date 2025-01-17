@@ -1,4 +1,5 @@
-﻿using Eventum.Projection.Tests.Data;
+﻿using Eventum.Projection.Abstractions;
+using Eventum.Projection.Tests.Data;
 using Eventum.Test.Data;
 using Xunit;
 

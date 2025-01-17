@@ -1,4 +1,5 @@
-﻿using Eventum.Persistence.CosmosDb.Tests.Data;
+﻿using Eventum.Persistence.Abstractions;
+using Eventum.Persistence.CosmosDb.Tests.Data;
 using Eventum.Projection;
 using Microsoft.Azure.Cosmos;
 using Moq;

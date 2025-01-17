@@ -1,6 +1,7 @@
 ﻿using Eventum.EventSourcing;
+using Eventum.Persistence.Abstractions;
 
-namespace Eventum.Projection
+namespace Eventum.Projection.Abstractions
 {
     /// <summary>
     /// Marker interface for a view projection.

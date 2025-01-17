@@ -1,4 +1,5 @@
-﻿using Eventum.Projection;
+﻿using Eventum.Persistence.Abstractions;
+using Eventum.Projection.Abstractions;
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Net;

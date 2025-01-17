@@ -1,4 +1,5 @@
-﻿using Eventum.Projection;
+﻿using Eventum.Persistence.Abstractions;
+using Eventum.Projection;
 using System.Text.Json.Serialization;
 
 namespace Eventum.Persistence.CosmosDb.Tests.Data

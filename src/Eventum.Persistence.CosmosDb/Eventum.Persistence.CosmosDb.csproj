@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Eventum.EventSourcing\Eventum.EventSourcing.csproj" />
+    <ProjectReference Include="..\Eventum.Persistence.Abstractions\Eventum.Persistence.Abstractions.csproj" />
     <ProjectReference Include="..\Eventum.Projection.Abstractions\Eventum.Projection.Abstractions.csproj" />
   </ItemGroup>
 

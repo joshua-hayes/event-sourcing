@@ -1,4 +1,5 @@
 ﻿using Eventum.EventSourcing;
+using Eventum.Projection.Abstractions;
 
 namespace Eventum.Projection.Tests.Data
 {

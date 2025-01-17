@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Eventum.Projection
+namespace Eventum.Persistence.Abstractions
 {
     /// <summary>
     /// Stores state in the form of a view that can be hydrated to apply further changes.

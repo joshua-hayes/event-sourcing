@@ -1,4 +1,6 @@
-﻿using Eventum.Projection.Tests.Data;
+﻿using Eventum.Persistence.Abstractions;
+using Eventum.Projection.Abstractions;
+using Eventum.Projection.Tests.Data;
 using Moq;
 using System.Reflection;
 using Xunit;
