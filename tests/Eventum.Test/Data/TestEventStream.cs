@@ -1,6 +1,6 @@
-﻿using EventSourcing.Events;
+﻿using Eventum.Events;
 
-namespace EventSourcing.Test.Data
+namespace Eventum.Test.Data
 {
     public class TestEventStream : EventStream
     {

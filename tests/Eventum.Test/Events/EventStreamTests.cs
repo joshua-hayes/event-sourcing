@@ -1,12 +1,12 @@
-﻿using EventSourcing.Events;
-using EventSourcing.Test.Data;
-using EventSourcing.Test.Extensions;
+﻿using Eventum.Events;
+using Eventum.Test.Data;
+using Eventum.Test.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Xunit;
 
-namespace EventSourcing.Test.Events
+namespace Eventum.Test.Events
 {
     public class EventStreamTests
     {

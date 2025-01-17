@@ -1,7 +1,7 @@
-﻿using EventSourcing.Events;
-using EventSourcing.Test.Extensions;
+﻿using Eventum.Events;
+using Eventum.Test.Extensions;
 
-namespace EventSourcing.Test.Data;
+namespace Eventum.Test.Data;
 /// <summary>
 ///  This is a test event for the purposes of testing.
 /// </summary>

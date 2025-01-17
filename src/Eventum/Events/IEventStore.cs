@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace EventSourcing.Events
+namespace Eventum.Events
 {
     public interface IEventStore
     {

@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
-[assembly: InternalsVisibleTo("EventSourcing.Test")]
-namespace EventSourcing.Events
+[assembly: InternalsVisibleTo("Eventum.Test")]
+namespace Eventum.Events
 {
     /// <summary>
     /// Provides the ability for an originator to restore its internal state to a previous state.

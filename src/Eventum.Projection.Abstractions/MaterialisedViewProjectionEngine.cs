@@ -1,11 +1,7 @@
-﻿using EventSourcing.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Eventum.Events;
 using System.Reflection;
-using System.Threading.Tasks;
 
-namespace EventSourcing.Projection
+namespace Eventum.Projection
 {
     public class MaterialisedViewProjectionEngine
     {

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace EventSourcing.Events
+namespace Eventum.Events
 {
     /// <summary>
     /// Provides a backing store for saving and loading event stream snapshots in the form of a memento.

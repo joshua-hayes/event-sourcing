@@ -1,17 +1,13 @@
-﻿using EventSourcing.CosmosDb;
-using EventSourcing.CosmosDb.Tests.Data;
-using EventSourcing.Projection;
-using EventSourcing.Test.Data;
+﻿using Eventum.CosmosDb.Tests.Data;
+using Eventum.Projection;
 using Microsoft.Azure.Cosmos;
 using Moq;
-using System;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace EventSourcing.CosmosDb.Tests
+namespace Eventum.CosmosDb.Tests
 {
     public class CosmosMaterialisedViewRepositoryTests
     {

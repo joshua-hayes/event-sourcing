@@ -1,7 +1,7 @@
-﻿using EventSourcing.Events;
+﻿using Eventum.Events;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.Projection.Tests.Data
+namespace Eventum.Projection.Tests.Data
 {
     public class TestEvent1 : EventStreamEvent
     {

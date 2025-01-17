@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.CosmosDb
+namespace Eventum.CosmosDb
 {
     public class MaterialisedViewData
     {
@@ -15,6 +14,5 @@ namespace EventSourcing.CosmosDb
 
         [JsonPropertyName("view")]
         public JsonObject View { get; set; }
-
     }
 }

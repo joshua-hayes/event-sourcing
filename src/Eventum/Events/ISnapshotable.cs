@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace EventSourcing.Events
+namespace Eventum.Events
 {
     /// <summary>
     /// Used to snapshot and restore the internal state of an object to a previous state. 

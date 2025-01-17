@@ -1,8 +1,7 @@
-﻿using EventSourcing.Projection;
-using System;
+﻿using Eventum.Projection;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.CosmosDb.Tests.Data
+namespace Eventum.CosmosDb.Tests.Data
 {
     public class TestView : MaterialisedView
     {

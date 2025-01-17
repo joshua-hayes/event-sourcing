@@ -1,4 +1,4 @@
-﻿using EventSourcing.Events;
+﻿using Eventum.Events;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EventSourcing.CosmosDb
+namespace Eventum.CosmosDb
 {
     public class CosmosEventStore : IEventStore
     {

@@ -1,8 +1,6 @@
-﻿using EventSourcing.Events;
-using EventSourcing.Projection;
-using EventSourcing.Test.Data;
+﻿using Eventum.Events;
 
-namespace EventSourcing.Projection.Tests.Data
+namespace Eventum.Projection.Tests.Data
 {
     public class TestProjection : EventProjection<TestView>,
                                   IEventHandler<TestEvent1>,

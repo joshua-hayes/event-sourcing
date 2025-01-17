@@ -1,7 +1,7 @@
-﻿using EventSourcing.Events;
+﻿using Eventum.Events;
 using System;
 
-namespace EventSourcing.Projection
+namespace Eventum.Projection
 {
     public class EventProjectionException : Exception
     {

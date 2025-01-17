@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventSourcing.Events
+namespace Eventum.Events
 {
     public class EventStreamHandlerException : Exception
     {

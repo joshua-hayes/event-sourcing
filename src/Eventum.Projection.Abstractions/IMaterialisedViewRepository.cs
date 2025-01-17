@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace EventSourcing.Projection
+﻿namespace Eventum.Projection
 {
     /// <summary>
     /// Repository for saving and loading a <see cref="MaterialisedView"/>.

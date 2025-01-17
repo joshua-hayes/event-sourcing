@@ -1,12 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Runtime.Versioning;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.Projection
+namespace Eventum.Projection
 {
     /// <summary>
     /// Maintains an up to date serialised version of a view that can be updated

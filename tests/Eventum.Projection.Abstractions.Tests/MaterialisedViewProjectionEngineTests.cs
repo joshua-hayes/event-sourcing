@@ -1,13 +1,9 @@
-﻿using EventSourcing.Projection;
-using EventSourcing.Projection.Tests.Data;
-using EventSourcing.Test.Data;
+﻿using Eventum.Projection.Tests.Data;
 using Moq;
-using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace EventSourcing.Projection.Tests
+namespace Eventum.Projection.Tests
 {
     public class MaterialisedViewProjectionEngineTests
     {

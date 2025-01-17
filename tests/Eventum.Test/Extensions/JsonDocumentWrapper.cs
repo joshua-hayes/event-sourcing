@@ -1,4 +1,4 @@
-﻿namespace EventSourcing.Test.Extensions;
+﻿namespace Eventum.Test.Extensions;
 
 using System;
 using System.Text.Json;

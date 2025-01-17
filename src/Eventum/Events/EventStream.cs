@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.Events
+namespace Eventum.Events
 {
     /// <summary>
     /// Represents a stream of events that exist within the same aggregate root.

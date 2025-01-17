@@ -1,4 +1,4 @@
-﻿namespace EventSourcing.Events
+﻿namespace Eventum.Events
 {
     /// <summary>
     /// Provides an abstraction for something that can handle an event.

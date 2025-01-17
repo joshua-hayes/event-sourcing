@@ -1,4 +1,4 @@
-﻿using EventSourcing.Projection;
+﻿using Eventum.Projection;
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Net;
@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
-namespace EventSourcing.CosmosDb
+namespace Eventum.CosmosDb
 {
     /// <summary>
     /// Stores and saves <see cref="MaterialisedView"/>'s  in a cosomos view container.

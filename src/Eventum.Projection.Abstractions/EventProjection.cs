@@ -1,10 +1,8 @@
-﻿using EventSourcing.Events;
+﻿using Eventum.Events;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
-namespace EventSourcing.Projection
+namespace Eventum.Projection
 {
     /// <summary>
     /// Base class for a projection that projects event changes onto a materialised view.

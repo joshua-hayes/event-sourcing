@@ -1,6 +1,6 @@
-﻿using EventSourcing.Events;
+﻿using Eventum.Events;
 
-namespace EventSourcing.Projection
+namespace Eventum.Projection
 {
     /// <summary>
     /// Marker interface for a view projection.

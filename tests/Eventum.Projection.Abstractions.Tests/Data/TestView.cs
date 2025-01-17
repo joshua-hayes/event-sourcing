@@ -1,9 +1,6 @@
-﻿using EventSourcing.Projection;
-using System;
-using System.IO;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace EventSourcing.Projection.Tests.Data
+namespace Eventum.Projection.Tests.Data
 {
     public class TestView : MaterialisedView
     {

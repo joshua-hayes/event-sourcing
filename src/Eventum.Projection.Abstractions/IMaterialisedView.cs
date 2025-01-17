@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.Projection
+namespace Eventum.Projection
 {
     /// <summary>
     /// Stores state in the form of a view that can be hydrated to apply further changes.

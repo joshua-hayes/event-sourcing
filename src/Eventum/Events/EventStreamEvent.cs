@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace EventSourcing.Events
+namespace Eventum.Events
 {
     public class EventStreamEvent : IEventStreamEvent
     {

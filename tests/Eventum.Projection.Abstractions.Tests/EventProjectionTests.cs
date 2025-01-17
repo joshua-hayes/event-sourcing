@@ -1,10 +1,8 @@
-﻿using EventSourcing.Projection;
-using EventSourcing.Projection.Tests.Data;
-using EventSourcing.Test.Data;
-using System.Threading.Channels;
+﻿using Eventum.Projection.Tests.Data;
+using Eventum.Test.Data;
 using Xunit;
 
-namespace EventSourcing.Projection.Tests
+namespace Eventum.Projection.Tests
 {
     public class EventProjectionTests
     {
