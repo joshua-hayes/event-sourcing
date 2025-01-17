@@ -30,7 +30,7 @@ namespace EventSourcing.Projection.Tests
         {
             // Arrange
 
-            var @event = new UserRegisteredEvent(Guid.NewGuid().ToString(), "John Carmack", 50);
+            var @event = new TestEvent1(Guid.NewGuid().ToString(), "John Carmack", 50);
             var mockMaterialisedViewRepository = new Mock<IMaterialisedViewRepository>();
             var sut = new MaterialisedViewProjectionEngine(Assembly.GetExecutingAssembly(), null);
 
@@ -44,7 +44,7 @@ namespace EventSourcing.Projection.Tests
         {
             // Arrange
 
-            var @event = new UserRegisteredEvent(Guid.NewGuid().ToString(), "John Carmack", 50);
+            var @event = new TestEvent1(Guid.NewGuid().ToString(), "John Carmack", 50);
             var mockMaterialisedViewRepository = new Mock<IMaterialisedViewRepository>();
             mockMaterialisedViewRepository.Setup(r => r.LoadViewAsync(It.IsAny<string>(), It.IsAny<Type>())).ReturnsAsync(new TestView());
             mockMaterialisedViewRepository.Setup(r => r.SaveViewAsync(It.IsAny<string>(), It.IsAny<MaterialisedView>())).ReturnsAsync(false);

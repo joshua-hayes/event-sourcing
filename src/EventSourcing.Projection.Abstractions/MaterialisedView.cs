@@ -1,5 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace EventSourcing.Projection
 {
@@ -34,5 +39,28 @@ namespace EventSourcing.Projection
         /// <see cref="IMaterialisedView.View"/>
         /// </summary>
         public JsonDocument View { get; set; }
+
+        /// <summary>
+        /// Serialises the view to Json.
+        /// </summary>
+        public void Serialise()
+        {
+            var properties = this.GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(this));
+
+            // Remove unwanted properties
+            properties.Remove(nameof(View));
+            properties.Remove(nameof(Etag));
+            properties.Remove(nameof(Changeset));
+
+            var jsonString = JsonSerializer.Serialize(properties,
+                                                      new JsonSerializerOptions
+                                                      {
+                                                          DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                                                          WriteIndented = true
+                                                      });
+
+
+            this.View = JsonDocument.Parse(jsonString);
+        }
     }
 }
