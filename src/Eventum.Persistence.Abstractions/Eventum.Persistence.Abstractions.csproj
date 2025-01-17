@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Eventum.EventSourcing\Eventum.EventSourcing.csproj" />
-    <ProjectReference Include="..\Eventum\Eventum.EventSourcing.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -1,4 +1,4 @@
-﻿using Eventum.Events;
+﻿using Eventum.EventSourcing;
 using System.Reflection;
 
 namespace Eventum.Projection
