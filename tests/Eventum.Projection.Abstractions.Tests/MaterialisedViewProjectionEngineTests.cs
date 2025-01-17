@@ -1,7 +1,6 @@
 ﻿using EventSourcing.Projection;
 using EventSourcing.Projection.Tests.Data;
 using EventSourcing.Test.Data;
-using Microsoft.Azure.Cosmos;
 using Moq;
 using System;
 using System.Reflection;

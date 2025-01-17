@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventSourcing.Projection.Abstractions.Tests\EventSourcing.Projection.Abstractions.Tests.csproj" />
-    <ProjectReference Include="..\EventSourcing.Test\EventSourcing.Test.csproj" />
+    <ProjectReference Include="..\..\src\Eventum.Projection.Abstractions\Eventum.Projection.Abstractions.csproj" />
+    <ProjectReference Include="..\Eventum.Test\Eventum.Test.csproj" />
   </ItemGroup>
 
 </Project>

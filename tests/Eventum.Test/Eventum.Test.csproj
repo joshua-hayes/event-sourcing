@@ -21,9 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EventSourcing.CosmosDb\EventSourcing.CosmosDb.csproj" />
-    <ProjectReference Include="..\..\src\EventSourcing.Projection.Abstractions\EventSourcing.Projection.Abstractions.csproj" />
-    <ProjectReference Include="..\..\src\EventSourcing\EventSourcing.csproj" />
+    <ProjectReference Include="..\..\src\Eventum\Eventum.csproj" />
   </ItemGroup>
 
 </Project>
