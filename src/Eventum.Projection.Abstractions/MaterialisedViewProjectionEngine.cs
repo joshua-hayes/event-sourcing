@@ -1,7 +1,8 @@
-﻿using Eventum.Events;
+﻿using Eventum.EventSourcing;
+using Eventum.Persistence.Abstractions;
 using System.Reflection;
 
-namespace Eventum.Projection
+namespace Eventum.Projection.Abstractions
 {
     public class MaterialisedViewProjectionEngine
     {

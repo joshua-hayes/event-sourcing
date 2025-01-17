@@ -1,4 +1,4 @@
-﻿using Eventum.Events;
+﻿using Eventum.EventSourcing;
 using System.Text.Json.Serialization;
 
 namespace Eventum.Projection.Tests.Data
