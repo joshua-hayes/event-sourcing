@@ -24,7 +24,6 @@
     <ProjectReference Include="..\..\src\Eventum.EventSourcing\Eventum.EventSourcing.csproj" />
     <ProjectReference Include="..\..\src\Eventum.Projection.Abstractions\Eventum.Projection.Abstractions.csproj" />
     <ProjectReference Include="..\Eventum.EventSourcing.Test\Eventum.EventSourcing.Test.csproj" />
-    <ProjectReference Include="..\Eventum.Test\Eventum.EventSourcing.Test.csproj" />
   </ItemGroup>
 
 </Project>
