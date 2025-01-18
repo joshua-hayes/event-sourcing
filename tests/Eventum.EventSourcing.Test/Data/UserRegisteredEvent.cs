@@ -1,7 +1,4 @@
-﻿using Eventum.EventSourcing;
-using System.Text.Json.Serialization;
-
-namespace Eventum.EventSourcing.Test.Data
+﻿namespace Eventum.EventSourcing.Test.Data
 {
     public class UserRegisteredEvent : EventStreamEvent
     {
@@ -12,10 +9,8 @@ namespace Eventum.EventSourcing.Test.Data
             Name = name;
         }
 
-        [JsonPropertyName("age")]
         public int Age { get; set; }
 
-        [JsonPropertyName("name")]
         public string Name { get; set; }
     }
 }
