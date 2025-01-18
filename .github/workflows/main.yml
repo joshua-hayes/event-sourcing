@@ -61,6 +61,7 @@ jobs:
       - name: Generate Changelog
         uses: dnbkr/clog@v2
         with:
+          githubToken: ${{ secrets.CI_BOT_TOKEN }}
           version: ${{ env.VERSION }}
 
       - name: Create Tag
