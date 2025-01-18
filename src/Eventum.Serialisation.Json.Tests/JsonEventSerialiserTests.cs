@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
+using Eventum.Serialisation.Json.TestData;
 
 namespace Eventum.Serialisation.Json.Tests;
 
@@ -90,43 +91,7 @@ public partial class JsonEventSerialiserTests
     }
 
     [Fact]
-    public void WhenSerialising_Expect_SerializationAttributeProperties_AreIgnored()
-    {
-        // Arrange
-
-        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2", Property3 = "IgnoredValue" };
-        var expectedJson = "{\"Property1\":\"Value1\",\"Property2\":\"Value2\"}";
-
-        // Act
-
-        var actualJson = _jsonEventSerialiser.Serialise(obj);
-
-        // Assert
-
-        Assert.Equal(expectedJson, actualJson);
-    }
-
-    [Fact]
-    public void WhenDeserialising_Expect_SerializationAttributeProperties_AreIgnored()
-    {
-        // Arrange
-
-        string data = "{\"Property1\": \"Value1\", \"Property2\": \"Value2\", \"Property3\": \"Value3\" }";
-        var expected = new TestObject { Property1 = "Value1", Property2 = "Value2", Property3 = null };
-
-        // Act
-
-        var actual = _jsonEventSerialiser.Deserialise<TestObject>(data);
-
-        // Assert
-
-        Assert.Equal(expected.Property1, actual.Property1);
-        Assert.Equal(expected.Property2, actual.Property2);
-        Assert.Null(actual.Property3);
-    }
-
-    [Fact]
-    public void When_JsonNamingPolicyIsCamelCase_Expect_SerialisedProperties_Are_CamelCase()
+    public void WhenJsonNamingPolicyIsCamelCase_Expect_SerialisedProperties_Are_CamelCase()
     {
         // Arrange
 

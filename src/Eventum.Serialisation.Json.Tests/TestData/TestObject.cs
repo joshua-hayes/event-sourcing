@@ -1,15 +1,12 @@
 ﻿using Eventum.Serialisation.Attributes;
 
-namespace Eventum.Serialisation.Json.Tests;
+namespace Eventum.Serialisation.Json.TestData;
 
-public partial class JsonEventSerialiserTests
+public class TestObject
 {
-    private class TestObject
-    {
-        public string Property1 { get; set; }
-        public string Property2 { get; set; }
+    public string Property1 { get; set; }
+    public string Property2 { get; set; }
 
-        [IgnoreSerialization]
-        public string Property3 { get; set; }
-    }
+    [IgnoreSerialization]
+    public string Property3 { get; set; }
 }

@@ -42,6 +42,7 @@ namespace Eventum.EventSourcing
         /// <see cref="ISnapshotable.IsSnapshotable"/>
         /// </summary>
         /// <remarks>Override if you plan to support snapshots.</remarks>
+        [IgnoreSerialization]
         public virtual bool IsSnapshotable => false;
 
         /// <summary>
