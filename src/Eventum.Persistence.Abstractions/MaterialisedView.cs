@@ -9,11 +9,11 @@ namespace Eventum.Persistence
     /// </summary>
     public class MaterialisedView : IMaterialisedView
     {
-        public MaterialisedView() : this(JsonDocument.Parse("{}"), null, new List<string>())
+        public MaterialisedView() : this(string.Empty, null, new List<string>())
         {
         }
 
-        public MaterialisedView(JsonDocument view, string etag, IList<string> changeset)
+        public MaterialisedView(string view, string etag, IList<string> changeset)
         {
             Etag = etag;
             Changeset = changeset;
@@ -33,29 +33,29 @@ namespace Eventum.Persistence
         /// <summary>
         /// <see cref="IMaterialisedView.View"/>
         /// </summary>
-        public JsonDocument View { get; set; }
+        public string View { get; set; }
 
         /// <summary>
         /// Serialises the view to Json.
         /// </summary>
-        public void Serialise()
-        {
-            var properties = this.GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(this));
+        //public void Serialise()
+        //{
+        //    var properties = this.GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(this));
 
-            // Remove unwanted properties
-            properties.Remove(nameof(View));
-            properties.Remove(nameof(Etag));
-            properties.Remove(nameof(Changeset));
+        //    // Remove unwanted properties
+        //    properties.Remove(nameof(View));
+        //    properties.Remove(nameof(Etag));
+        //    properties.Remove(nameof(Changeset));
 
-            var jsonString = JsonSerializer.Serialize(properties,
-                                                      new JsonSerializerOptions
-                                                      {
-                                                          DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                                                          WriteIndented = true
-                                                      });
+        //    var jsonString = JsonSerializer.Serialize(properties,
+        //                                              new JsonSerializerOptions
+        //                                              {
+        //                                                  DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        //                                                  WriteIndented = true
+        //                                              });
 
 
-            this.View = JsonDocument.Parse(jsonString);
-        }
+        //    this.View = JsonDocument.Parse(jsonString);
+        //}
     }
 }

@@ -17,7 +17,7 @@ namespace Eventum.Persistence
         /// <summary>
         /// The serialised view.
         /// </summary>
-        JsonDocument View { get; set; }
+        string View { get; set; }
 
         /// <summary>
         /// The entity tag associated with the view that can be used for

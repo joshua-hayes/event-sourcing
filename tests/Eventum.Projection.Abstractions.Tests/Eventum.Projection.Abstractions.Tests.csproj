@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Eventum.EventSourcing.Abstractions\Eventum.EventSourcing.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\Eventum.Projection.Abstractions\Eventum.Projection.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Eventum.Serialisation.Json\Eventum.Serialisation.Json.csproj" />
     <ProjectReference Include="..\Eventum.EventSourcing.Test\Eventum.EventSourcing.Test.csproj" />
   </ItemGroup>
 

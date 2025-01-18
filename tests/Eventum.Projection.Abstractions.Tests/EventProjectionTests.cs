@@ -1,12 +1,20 @@
 ﻿using Eventum.EventSourcing.Test.Data;
 using Eventum.Projection;
 using Eventum.Projection.Tests.Data;
+using Eventum.Serialisation.Json;
 using Xunit;
 
 namespace Eventum.Projection.Tests
 {
     public class EventProjectionTests
     {
+        private JsonEventSerialiser _serialiser;
+
+        public EventProjectionTests()
+        {
+            _serialiser = new JsonEventSerialiser();
+        }
+
         [Fact]
         public void Expect_New_Projection_Sets_View()
         {
@@ -16,7 +24,7 @@ namespace Eventum.Projection.Tests
 
             // Act
 
-            var projection = new TestProjection(view);
+            var projection = new TestProjection(view, _serialiser);
 
             // Assert
 
@@ -31,7 +39,7 @@ namespace Eventum.Projection.Tests
             // Arrange
 
             var @event = new UnhandledEvent();
-            var projection = new TestProjection(new TestView());
+            var projection = new TestProjection(new TestView(), _serialiser);
 
             // Act / Assert
 
@@ -48,7 +56,7 @@ namespace Eventum.Projection.Tests
 
             // Act
 
-            var projection = new TestProjection(view);
+            var projection = new TestProjection(view, _serialiser);
             projection.ApplyChange(@change1);
 
             // Assert
@@ -70,7 +78,7 @@ namespace Eventum.Projection.Tests
             };
 
             var view = new TestView();
-            var projection = new TestProjection(view);
+            var projection = new TestProjection(view, _serialiser);
             projection.ApplyChange(change1);
             projection.ApplyChange(change2);
             var inOrderHash = view.Changeset.Last();
@@ -78,7 +86,7 @@ namespace Eventum.Projection.Tests
             // Act
 
             var compareView = new TestView();
-            var compareProjection = new TestProjection(compareView);
+            var compareProjection = new TestProjection(compareView, _serialiser);
             compareProjection.ApplyChange(change2);
             compareProjection.ApplyChange(change1);
             var outOfOrderHash = compareView.Changeset.Last();
@@ -96,7 +104,7 @@ namespace Eventum.Projection.Tests
             // Arrange
 
             var view = new TestView();
-            var projection = new TestProjection(view);
+            var projection = new TestProjection(view, _serialiser);
 
             var change1 = new TestEvent1("stream1", "f1", 1);
             var change2 = new TestEvent2("stream1", "f3", DateTime.MinValue);
@@ -121,7 +129,7 @@ namespace Eventum.Projection.Tests
             // Arrange
 
             var view = new TestView();
-            var projection = new TestProjection(view, changesetLimit);
+            var projection = new TestProjection(view, _serialiser, changesetLimit);
 
             // Act
 

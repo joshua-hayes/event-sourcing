@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventum.Serialisation.Json"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventum.Serialisation.Json.Tests", "src\Eventum.Serialisation.Json.Tests\Eventum.Serialisation.Json.Tests.csproj", "{73C947E8-4B99-4EE8-93B8-2DB19B34E774}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventum.Persistence.Abstractions.Tests", "tests\Eventum.Persistence.Abstractions.Tests\Eventum.Persistence.Abstractions.Tests.csproj", "{E2DC1BB8-0E5B-4FA7-84DC-12C43BB1D005}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,10 @@ Global
 		{73C947E8-4B99-4EE8-93B8-2DB19B34E774}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73C947E8-4B99-4EE8-93B8-2DB19B34E774}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73C947E8-4B99-4EE8-93B8-2DB19B34E774}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2DC1BB8-0E5B-4FA7-84DC-12C43BB1D005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2DC1BB8-0E5B-4FA7-84DC-12C43BB1D005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2DC1BB8-0E5B-4FA7-84DC-12C43BB1D005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2DC1BB8-0E5B-4FA7-84DC-12C43BB1D005}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +117,7 @@ Global
 		{18F1C39D-4F2C-451F-9BA1-847001498F08} = {831F89F2-0FD6-4DDE-9819-A99B2D207C6E}
 		{34DC35FF-B4D1-4A48-AADA-262B232D1504} = {0EFC1A99-8042-42D1-82D7-507318845212}
 		{73C947E8-4B99-4EE8-93B8-2DB19B34E774} = {1605043D-FB8E-49EB-AAAA-B905129C7A5F}
+		{E2DC1BB8-0E5B-4FA7-84DC-12C43BB1D005} = {1605043D-FB8E-49EB-AAAA-B905129C7A5F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4AFD14DC-99D7-40B7-B63F-F48B97B1B86E}
