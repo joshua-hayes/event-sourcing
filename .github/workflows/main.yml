@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        
+      - name: Install dependencies
+        run: dotnet restore
 
       - name: Cache .NET dependencies
         uses: actions/cache@v4
@@ -24,9 +27,6 @@ jobs:
           key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-dotnet-
-
-      - name: Install dependencies
-        run: dotnet restore
 
       - name: Run tests
         run: dotnet test --no-restore
