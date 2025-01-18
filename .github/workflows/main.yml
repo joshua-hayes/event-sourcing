@@ -5,6 +5,7 @@ on:
     branches:
       - '**'
   pull_request:
+    types: [synchronize]
     branches:
       - '**'
 
@@ -49,6 +50,7 @@ jobs:
         run: dotnet test --no-restore
 
   release:
+    needs: test
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
