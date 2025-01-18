@@ -1,5 +1,5 @@
-﻿using Eventum.Persistence.Abstractions;
-using Eventum.Projection.Abstractions;
+﻿using Eventum.Persistence;
+using Eventum.Projection;
 using Eventum.Projection.Tests.Data;
 using Moq;
 using System.Reflection;

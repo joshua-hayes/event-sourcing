@@ -1,5 +1,5 @@
 ﻿using Eventum.EventSourcing;
-using Eventum.Persistence.Abstractions;
+using Eventum.Persistence;
 using System.Collections.Concurrent;
 
 namespace Eventum.Persistence.InMemory

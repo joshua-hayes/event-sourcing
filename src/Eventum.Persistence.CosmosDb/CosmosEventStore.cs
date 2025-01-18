@@ -1,5 +1,5 @@
 ﻿using Eventum.EventSourcing;
-using Eventum.Persistence.Abstractions;
+using Eventum.Persistence;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

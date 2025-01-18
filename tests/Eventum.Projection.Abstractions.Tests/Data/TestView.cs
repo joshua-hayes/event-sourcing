@@ -1,4 +1,4 @@
-﻿using Eventum.Persistence.Abstractions;
+﻿using Eventum.Persistence;
 using System.Text.Json.Serialization;
 
 namespace Eventum.Projection.Tests.Data

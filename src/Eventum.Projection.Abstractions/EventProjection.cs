@@ -1,9 +1,9 @@
 ﻿using Eventum.EventSourcing;
-using Eventum.Persistence.Abstractions;
+using Eventum.Persistence;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Eventum.Projection.Abstractions
+namespace Eventum.Projection
 {
     /// <summary>
     /// Base class for a projection that projects event changes onto a materialised view.

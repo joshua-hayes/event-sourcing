@@ -1,6 +1,6 @@
 ﻿using Eventum.EventSourcing;
 
-namespace Eventum.Persistence.Abstractions
+namespace Eventum.Persistence
 {
     /// <summary>
     /// Used to snapshot and restore the internal state of an object to a previous state. 
