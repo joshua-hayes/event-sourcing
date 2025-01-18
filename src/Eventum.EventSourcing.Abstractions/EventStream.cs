@@ -1,10 +1,7 @@
-﻿using Eventum.Serialisation;
-using Eventum.Serialisation.Attributes;
+﻿using Eventum.Serialisation.Attributes;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Reflection;
 
 namespace Eventum.EventSourcing
 {
@@ -14,7 +11,6 @@ namespace Eventum.EventSourcing
     public abstract class EventStream : ISnapshotable
     {
         private readonly List<IEventStreamEvent> _events;
-        protected JsonDocument _snapshot;
 
         public EventStream()
         {
@@ -55,31 +51,30 @@ namespace Eventum.EventSourcing
                 ApplyChange(e, false);
         }
 
+        /// <summary>
+        /// <see cref="ISnapshotable.LoadFromSnapshot(SnapshotMemento)"/>
+        /// </summary>
         public virtual void LoadFromSnapshot(SnapshotMemento memento)
         {
-            _snapshot = JsonDocument.Parse(memento.State.RootElement.ToString());
+            var props = GetType().GetProperties()
+                                 .Where(prop => prop.GetCustomAttribute<IgnoreSerializationAttribute>() == null);
 
-            StreamId = _snapshot.RootElement.GetProperty("streamId").GetString();
-            Version = _snapshot.RootElement.GetProperty("version").GetInt32();
+            foreach (var prop in props)
+            {
+                var propertyState = memento.GetState(prop.Name);
+                if (propertyState != null)
+                {
+                    prop.SetValue(this, propertyState);
+                }
+            }
         }
 
+        /// <summary>
+        /// <see cref="ISnapshotable.SaveToSnapshot"/>
+        /// </summary>
         public SnapshotMemento SaveToSnapshot()
         {
-            // This isn't very efficient. It uses reflection to gather all properties from the derived class into a dictionary before
-            // serialising. The default behaviour for the JsonSerializer.Serialize(this) doesn't include derived properties
-            //    var jsonString = JsonSerializer.Serialize(this, options);
-            var properties = GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(this));
-            var jsonString = JsonSerializer.Serialize(properties,
-                                                      new JsonSerializerOptions
-                                                      {
-                                                          DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                                                          WriteIndented = true
-                                                      });
-
-            var jsonDocument = JsonDocument.Parse(jsonString);
-            var memento = new SnapshotMemento(jsonDocument);
-
-            return memento;
+            return new SnapshotMemento(this);
         }
 
         /// <summary>
