@@ -124,4 +124,27 @@ public partial class JsonEventSerialiserTests
         Assert.Equal(expected.Property2, actual.Property2);
         Assert.Null(actual.Property3);
     }
+
+    [Fact]
+    public void When_JsonNamingPolicyIsCamelCase_Expect_SerialisedProperties_Are_CamelCase()
+    {
+        // Arrange
+
+        var customOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2" };
+        var serialiser = new JsonEventSerialiser(customOptions);
+
+        // Act
+
+        var json = serialiser.Serialise(obj);
+
+        // Assert
+
+        var expectedJson = "{\"property1\":\"Value1\",\"property2\":\"Value2\"}";
+        Assert.Equal(expectedJson, json);
+    }
 }

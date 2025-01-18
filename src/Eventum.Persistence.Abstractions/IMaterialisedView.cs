@@ -12,20 +12,17 @@ namespace Eventum.Persistence
         /// Represents the collection of event changes that were applied to arrive
         /// at the current state of the view.
         /// </summary>
-        [JsonPropertyName("changeset")]
         public IList<string> Changeset { get; set; }
 
         /// <summary>
         /// The serialised view.
         /// </summary>
-        [JsonPropertyName("view")]
         JsonDocument View { get; set; }
 
         /// <summary>
         /// The entity tag associated with the view that can be used for
         /// optimistic concurrency control.
         /// </summary>
-        [JsonPropertyName("_etag")]
         public string Etag { get; set; }
     }
 }

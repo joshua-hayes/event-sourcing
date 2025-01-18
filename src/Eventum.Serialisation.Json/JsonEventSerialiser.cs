@@ -16,7 +16,8 @@ namespace Eventum.Serialisation.Json
         public JsonEventSerialiser() : this(new JsonSerializerOptions {
                                                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                                                 WriteIndented = false,
-                                                Converters = { new IgnoreSerializationAttributeJsonConverter() }
+                                                Converters = { new IgnoreSerializationAttributeJsonConverter() },
+                                                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                                            })
         { 
         }
