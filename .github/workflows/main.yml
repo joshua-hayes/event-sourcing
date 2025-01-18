@@ -69,6 +69,8 @@ jobs:
       - name: Create Tag
         run: git tag -a ${{ env.VERSION }} -m "Release version ${{ env.VERSION }}"
         env:
+          GIT_COMMITTER_NAME: "CI Bot"
+          GIT_COMMITTER_EMAIL: "ci-bot@example.com"
           CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
 
       - name: Create Release
