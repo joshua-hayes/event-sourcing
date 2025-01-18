@@ -48,7 +48,7 @@ jobs:
       - name: Run tests
         run: dotnet test --no-restore
 
-  changelog:
+  release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
         run: echo "VERSION=0.1.0" >> $GITHUB_ENV
 
       - name: Generate Changelog
-        uses: yorickpeterse/clogs@v1
+        uses: dnbkr/clog@v2
         with:
           version: ${{ env.VERSION }}
 
@@ -82,7 +82,7 @@ jobs:
         run: dotnet pack -c Release -o ./nupkg
 
       - name: Publish NuGet package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: NuGetPackage
           path: ./nupkg/*.nupkg
