@@ -10,18 +10,12 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages   
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-
+        
       - name: Cache .NET dependencies
         uses: actions/cache@v4
         with:
@@ -30,20 +24,15 @@ jobs:
           key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-dotnet-
-        
-      - name: Restore dependencies
+
+      - name: Install dependencies
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build Eventum.sln  --no-restore
-
       - name: Run tests and generate coverage report
-        run: dotnet test --no-restore --verbosity normal -p:CollectCoverage=true -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=opencover
-        
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=TestResults/
+
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v2
         with:
-          file: ./TestResults/coverage.opencover.xml
-          flags: branch
-          name: codecov
-          fail_ci_if_error: true
+          name: CoverageReport
+          path: ./TestResults/coverage.cobertura.xml
