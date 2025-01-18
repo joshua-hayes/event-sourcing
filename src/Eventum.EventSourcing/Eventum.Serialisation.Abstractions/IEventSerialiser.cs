@@ -1,4 +1,4 @@
-﻿namespace Eventum.Serialisation.Abstractions
+﻿namespace Eventum.Serialisation
 {
     /// <summary>
     /// Provides an abstraction for serialising an object to / from a string.

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Eventum.Serialisation;
+using Eventum.Serialisation.Attributes;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -30,10 +32,10 @@ namespace Eventum.EventSourcing
         public int Version { get; set; }
 
         /// <summary>
-        ///     Gets the uncommitted changes.
+        /// Gets the uncommitted changes.
         /// </summary>
         /// <returns>A list of uncommitted changes.</returns>
-        [JsonIgnore]
+        [IgnoreSerialization]
         public IEnumerable<IEventStreamEvent> UncommittedChanges => _events;
 
         /// <summary>
@@ -43,7 +45,7 @@ namespace Eventum.EventSourcing
         public virtual bool IsSnapshotable => false;
 
         /// <summary>
-        ///     Loads the event stream from history.
+        /// Loads the event stream from history.
         /// </summary>
         /// <param name="history">The history of events to load.</param>
         public void LoadFromHistory(IList<IEventStreamEvent> history)

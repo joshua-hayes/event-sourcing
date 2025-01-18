@@ -1,6 +1,8 @@
-﻿using Eventum.Serialisation.Abstractions;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Reflection;
+using Eventum.Serialisation.Json.Attributes;
+using Eventum.Serialisation.Attributes;
 
 namespace Eventum.Serialisation.Json
 {
@@ -13,8 +15,9 @@ namespace Eventum.Serialisation.Json
 
         public JsonEventSerialiser() : this(new JsonSerializerOptions {
                                                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                                                WriteIndented = false
-                                            })
+                                                WriteIndented = false,
+                                                Converters = { new IgnoreSerializationAttributeJsonConverter() }
+                                           })
         { 
         }
 
@@ -46,8 +49,12 @@ namespace Eventum.Serialisation.Json
             if (obj == null)
                 throw new ArgumentNullException("obj");
 
-            var properties = obj.GetType().GetProperties().ToDictionary(prop => prop.Name, prop => prop.GetValue(obj));
-            var jsonString = JsonSerializer.Serialize(properties, _options);
+            var properties = obj.GetType()
+                                .GetProperties()
+                                .Where(prop => prop.GetCustomAttribute<IgnoreSerializationAttribute>() == null)
+                                .ToDictionary(prop => prop.Name, prop => prop.GetValue(obj));
+
+            var jsonString = JsonSerializer.Serialize(obj, _options);
 
             return jsonString;
         }

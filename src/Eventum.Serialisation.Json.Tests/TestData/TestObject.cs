@@ -1,4 +1,6 @@
-﻿namespace Eventum.Serialisation.Json.Tests;
+﻿using Eventum.Serialisation.Attributes;
+
+namespace Eventum.Serialisation.Json.Tests;
 
 public partial class JsonEventSerialiserTests
 {
@@ -6,5 +8,8 @@ public partial class JsonEventSerialiserTests
     {
         public string Property1 { get; set; }
         public string Property2 { get; set; }
+
+        [IgnoreSerialization]
+        public string Property3 { get; set; }
     }
 }

@@ -57,13 +57,12 @@ public partial class JsonEventSerialiserTests
     {
         // Arrange
 
-        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2" };
+        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2", Property3 = "Value3" };
         var expectedJson = "{\"Property1\":\"Value1\",\"Property2\":\"Value2\"}";
-        var jsonEventSerialiser = new JsonEventSerialiser(new JsonSerializerOptions { WriteIndented = false });
 
         // Act
 
-        var actualJson = jsonEventSerialiser.Serialise(obj);
+        var actualJson = _jsonEventSerialiser.Serialise(obj);
 
         // Assert
 
@@ -88,5 +87,41 @@ public partial class JsonEventSerialiserTests
         
         Assert.Equal(JsonIgnoreCondition.WhenWritingNull, options.DefaultIgnoreCondition);
         Assert.False(options.WriteIndented);
+    }
+
+    [Fact]
+    public void WhenSerialising_Expect_SerializationAttributeProperties_AreIgnored()
+    {
+        // Arrange
+
+        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2", Property3 = "IgnoredValue" };
+        var expectedJson = "{\"Property1\":\"Value1\",\"Property2\":\"Value2\"}";
+
+        // Act
+
+        var actualJson = _jsonEventSerialiser.Serialise(obj);
+
+        // Assert
+
+        Assert.Equal(expectedJson, actualJson);
+    }
+
+    [Fact]
+    public void WhenDeserialising_Expect_SerializationAttributeProperties_AreIgnored()
+    {
+        // Arrange
+
+        string data = "{\"Property1\": \"Value1\", \"Property2\": \"Value2\", \"Property3\": \"Value3\" }";
+        var expected = new TestObject { Property1 = "Value1", Property2 = "Value2", Property3 = null };
+
+        // Act
+
+        var actual = _jsonEventSerialiser.Deserialise<TestObject>(data);
+
+        // Assert
+
+        Assert.Equal(expected.Property1, actual.Property1);
+        Assert.Equal(expected.Property2, actual.Property2);
+        Assert.Null(actual.Property3);
     }
 }
