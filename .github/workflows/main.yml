@@ -77,11 +77,10 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ env.VERSION }}
-          release_name: "Release ${{ env.VERSION }}"
-          body: "Generated changelog for version ${{ env.VERSION }}"
+          release_name: "${{ env.VERSION }}"
+          body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
-          token: ${{ secrets.CI_BOT_TOKEN }}
 
       - name: Pack NuGet artifacts
         run: dotnet pack -c Release -o ./nupkg
