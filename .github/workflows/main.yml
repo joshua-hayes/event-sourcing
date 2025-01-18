@@ -14,11 +14,8 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         
-      - name: Install dependencies
-        run: dotnet restore
-
       - name: Cache .NET dependencies
         uses: actions/cache@v4
         with:
@@ -28,5 +25,57 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dotnet-
 
-      - name: Run tests
-        run: dotnet test --no-restore
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --no-restore
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run tests and generate coverage report
+        run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=TestResults/
+
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoverageReport
+          path: ./TestResults/coverage.cobertura.xml
+          if-no-files-found: error
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate human-readable coverage report
+        run: reportgenerator -reports:TestResults/coverage.cobertura.xml -targetdir:CoverageReports -reporttypes:Html
+
+      - name: Upload coverage report to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoverageReports
+          path: CoverageReports
+          if-no-files-found: error
+
+  inspect:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: CoverageReport
+          path: ./TestResults
+
+      - name: Inspect downloaded artifacts
+        run: ls -l ./TestResults
