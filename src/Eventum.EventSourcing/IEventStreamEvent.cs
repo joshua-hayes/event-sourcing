@@ -11,6 +11,12 @@ namespace Eventum.EventSourcing
         /// <summary>
         /// The unique event identifier.
         /// </summary>
+        [JsonPropertyName("streamId")]
+        public string StreamId { get; set; }
+
+        /// <summary>
+        /// The unique event identifier.
+        /// </summary>
         [JsonPropertyName("id")]
         public string Id { get; set; }
 

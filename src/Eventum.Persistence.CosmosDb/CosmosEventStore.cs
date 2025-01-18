@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace Eventum.Persistence.CosmosDb
 {
+    /// <summary>
+    /// An Azure CosmosDb implementation of the event store.
+    /// </summary>
     public class CosmosEventStore : IEventStore
     {
         private readonly IEventTypeResolver _eventTypeResolver;
