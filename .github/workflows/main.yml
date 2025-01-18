@@ -29,7 +29,13 @@ jobs:
             ${{ runner.os }}-dotnet-
 
       - name: Run tests
-        run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+        run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Collect=true
+
+      - name: List TestResults directory
+        run: ls -l ./TestResults
+
+      - name: Check coverage file
+        run: cat ./TestResults/coverage.cobertura.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
