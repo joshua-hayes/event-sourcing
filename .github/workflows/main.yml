@@ -28,5 +28,62 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dotnet-
 
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Use cached .NET dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+          key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-dotnet-
+
       - name: Run tests
         run: dotnet test --no-restore
+
+  changelog:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set version
+        run: echo "VERSION=0.1.0" >> $GITHUB_ENV
+
+      - name: Generate Changelog
+        uses: yorickpeterse/clogs@v1
+        with:
+          version: ${{ env.VERSION }}
+
+      - name: Create Tag
+        run: git tag -a ${{ env.VERSION }} -m "Release version ${{ env.VERSION }}"
+        env:
+          CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: "Release ${{ env.VERSION }}"
+          body: "Generated changelog for version ${{ env.VERSION }}"
+          draft: false
+          prerelease: false
+          token: ${{ secrets.CI_BOT_TOKEN }}
+
+      - name: Pack NuGet artifacts
+        run: dotnet pack -c Release -o ./nupkg
+
+      - name: Publish NuGet package
+        uses: actions/upload-artifact@v2
+        with:
+          name: NuGetPackage
+          path: ./nupkg/*.nupkg
+          retention-days: 90
