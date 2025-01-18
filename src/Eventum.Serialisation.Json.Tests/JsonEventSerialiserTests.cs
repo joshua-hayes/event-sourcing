@@ -1,9 +1,10 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using Xunit;
 
 namespace Eventum.Serialisation.Json.Tests;
 
-public class JsonEventSerialiserTests
+public partial class JsonEventSerialiserTests
 {
     private readonly JsonEventSerialiser _jsonEventSerialiser;
 
@@ -26,8 +27,8 @@ public class JsonEventSerialiserTests
     {
         // Arrange
 
-        string data = "{\"Property1\": \"Value1\", \"Property2\": 123}";
-        var expected = new TestObject { Property1 = "Value1", Property2 = 123 };
+        string data = "{\"Property1\": \"Value1\", \"Property2\": \"Value2\"}";
+        var expected = new TestObject { Property1 = "Value1", Property2 = "Value2" };
 
         // Act
 
@@ -56,8 +57,8 @@ public class JsonEventSerialiserTests
     {
         // Arrange
 
-        var obj = new TestObject { Property1 = "Value1", Property2 = 123 };
-        var expectedJson = "{\"Property1\":\"Value1\",\"Property2\":123}";
+        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2" };
+        var expectedJson = "{\"Property1\":\"Value1\",\"Property2\":\"Value2\"}";
         var jsonEventSerialiser = new JsonEventSerialiser(new JsonSerializerOptions { WriteIndented = false });
 
         // Act
@@ -69,9 +70,23 @@ public class JsonEventSerialiserTests
         Assert.Equal(expectedJson, actualJson);
     }
 
-    private class TestObject
+    [Fact]
+    public void WhenCustomOptionsArePassed_Expect_JsonSerializerOptionsToBeSetCorrectly()
     {
-        public string Property1 { get; set; }
-        public int Property2 { get; set; }
+        // Arrange
+
+        var customOptions = new JsonSerializerOptions {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false
+        };
+        var serialiser = new JsonEventSerialiser(customOptions);
+
+        // Act
+
+        var options = serialiser.Options;
+        
+        // Assert
+        
+        Assert.Equal(JsonIgnoreCondition.WhenWritingNull, options.DefaultIgnoreCondition);
+        Assert.False(options.WriteIndented);
     }
 }

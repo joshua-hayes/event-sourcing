@@ -13,7 +13,7 @@ namespace Eventum.Serialisation.Json
 
         public JsonEventSerialiser() : this(new JsonSerializerOptions {
                                                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                                                WriteIndented = true
+                                                WriteIndented = false
                                             })
         { 
         }
@@ -22,6 +22,8 @@ namespace Eventum.Serialisation.Json
         {
             _options = options;
         }
+
+        public JsonSerializerOptions Options => _options;
 
         /// <summary>
         /// <see cref="IEventSerialiser.Serialise{T}(T)"/>
