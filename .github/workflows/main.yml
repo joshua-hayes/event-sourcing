@@ -29,7 +29,7 @@ jobs:
             ${{ runner.os }}-dotnet-
 
       - name: Run tests
-        run: dotnet test --no-restore
+        run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
