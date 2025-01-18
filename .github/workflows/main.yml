@@ -5,6 +5,7 @@ on:
     branches:
       - '**'
   pull_request:
+    types: [synchronize]
     branches:
       - '**'
 
@@ -49,6 +50,7 @@ jobs:
         run: dotnet test --no-restore
 
   release:
+    needs: test
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
@@ -61,6 +63,7 @@ jobs:
       - name: Generate Changelog
         uses: dnbkr/clog@v2
         with:
+          githubToken: ${{ secrets.CI_BOT_TOKEN }}
           version: ${{ env.VERSION }}
 
       - name: Create Tag
