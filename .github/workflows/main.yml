@@ -32,7 +32,7 @@ jobs:
         run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=TestResults/
 
       - name: Upload coverage report as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: CoverageReport
           path: ./TestResults/coverage.cobertura.xml
@@ -45,7 +45,7 @@ jobs:
         run: reportgenerator -reports:TestResults/coverage.cobertura.xml -targetdir:CoverageReports -reporttypes:Html
 
       - name: Upload coverage report to GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: CoverageReports
           path: CoverageReports
