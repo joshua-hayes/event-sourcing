@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
-[assembly: InternalsVisibleTo("Eventum.Test")]
+[assembly: InternalsVisibleTo("Eventum.EventSourcing.Test")]
 namespace Eventum.EventSourcing
 {
     /// <summary>
@@ -22,9 +22,5 @@ namespace Eventum.EventSourcing
         /// be accessed outside of this framework namespace.
         /// </summary>
         internal JsonDocument State => _state;
-
-        public JsonElement GetState() {
-            return _state.RootElement;
-        }
     }
 }

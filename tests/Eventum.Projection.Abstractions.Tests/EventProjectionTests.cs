@@ -1,6 +1,6 @@
-﻿using Eventum.Projection.Abstractions;
+﻿using Eventum.EventSourcing.Test.Data;
+using Eventum.Projection;
 using Eventum.Projection.Tests.Data;
-using Eventum.Test.Data;
 using Xunit;
 
 namespace Eventum.Projection.Tests

@@ -1,7 +1,7 @@
 ﻿using Eventum.EventSourcing;
 using System.Threading.Tasks;
 
-namespace Eventum.Persistence.Abstractions
+namespace Eventum.Persistence
 {
     public interface IEventStore
     {

@@ -1,4 +1,4 @@
-﻿using Eventum.Persistence.Abstractions;
+﻿using Eventum.Persistence;
 using Eventum.Projection;
 using System.Text.Json.Serialization;
 

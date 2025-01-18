@@ -2,7 +2,7 @@ using Eventum.EventSourcing;
 using System;
 using Xunit;
 
-namespace Eventum.Test.Events
+namespace Eventum.EventSourcing.Test
 {
     public class EventStreamEventTests
     {

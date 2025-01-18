@@ -1,4 +1,4 @@
-﻿namespace Eventum.Persistence.Abstractions
+﻿namespace Eventum.Persistence
 {
     /// <summary>
     /// Repository for saving and loading a <see cref="MaterialisedView"/>.

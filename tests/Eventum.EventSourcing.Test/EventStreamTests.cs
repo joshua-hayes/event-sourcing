@@ -1,12 +1,12 @@
 ﻿using Eventum.EventSourcing;
-using Eventum.Test.Data;
+using Eventum.EventSourcing.Test.Data;
 using Eventum.Test.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Xunit;
 
-namespace Eventum.Test.Events
+namespace Eventum.EventSourcing.Test
 {
     public class EventStreamTests
     {
@@ -115,10 +115,10 @@ namespace Eventum.Test.Events
             var snapshot = eventStream.SaveToSnapshot();
 
             // Assert
-            Assert.Equal(eventStream.StreamId, snapshot.GetState().GetValue<string>("StreamId"));
-            Assert.Equal(eventStream.Version, snapshot.GetState().GetValue<int>("Version"));
-            Assert.Equal(eventStream.Name, snapshot.GetState().GetValue<string>("Name"));
-            Assert.Equal(eventStream.Age, snapshot.GetState().GetValue<int>("Age"));
+            Assert.Equal(eventStream.StreamId, snapshot.State.RootElement.GetValue<string>("StreamId"));
+            Assert.Equal(eventStream.Version, snapshot.State.RootElement.GetValue<int>("Version"));
+            Assert.Equal(eventStream.Name, snapshot.State.RootElement.GetValue<string>("Name"));
+            Assert.Equal(eventStream.Age, snapshot.State.RootElement.GetValue<int>("Age"));
         }
 
         [Fact]
