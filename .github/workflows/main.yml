@@ -28,19 +28,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dotnet-
 
-      - name: Run tests
-        run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Collect=true
-
-      - name: List TestResults directory
-        run: ls -l ./TestResults
-
-      - name: Check coverage file
-        run: cat ./TestResults/coverage.cobertura.xml
-
+      - name: Run tests and generate coverage report
+        run: dotnet test  -p:CollectCoverage=true -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=opencover
+        
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          file: ./TestResults/coverage.cobertura.xml
+          file: ./TestResults/coverage.opencover.xml
           flags: branch
           name: codecov
           fail_ci_if_error: true
