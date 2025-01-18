@@ -1,6 +1,6 @@
 ﻿using Eventum.EventSourcing;
 
-namespace Eventum.Test.Data
+namespace Eventum.EventSourcing.Test.Data
 {
     public class UnhandledEvent : EventStreamEvent
     {

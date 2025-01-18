@@ -1,7 +1,7 @@
 ﻿using Eventum.EventSourcing;
 using System.Text.Json.Serialization;
 
-namespace Eventum.Test.Data
+namespace Eventum.EventSourcing.Test.Data
 {
     public class UserRegisteredEvent : EventStreamEvent
     {

@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Eventum.EventSourcing\Eventum.EventSourcing.csproj" />
+    <ProjectReference Include="..\Eventum.EventSourcing.Abstractions\Eventum.EventSourcing.Abstractions.csproj" />
     <ProjectReference Include="..\Eventum.Persistence.Abstractions\Eventum.Persistence.Abstractions.csproj" />
-    <ProjectReference Include="..\Eventum\Eventum.EventSourcing.csproj" />
   </ItemGroup>
 
 </Project>

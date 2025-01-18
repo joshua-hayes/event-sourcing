@@ -54,7 +54,7 @@ namespace Eventum.EventSourcing
 
         public virtual void LoadFromSnapshot(SnapshotMemento memento)
         {
-            _snapshot = JsonDocument.Parse(memento.GetState().ToString());
+            _snapshot = JsonDocument.Parse(memento.State.RootElement.ToString());
 
             StreamId = _snapshot.RootElement.GetProperty("streamId").GetString();
             Version = _snapshot.RootElement.GetProperty("version").GetInt32();
