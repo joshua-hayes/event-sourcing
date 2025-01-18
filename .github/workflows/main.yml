@@ -10,14 +10,17 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages   
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Install dependencies
-        run: dotnet restore
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
 
       - name: Cache .NET dependencies
         uses: actions/cache@v4
@@ -27,9 +30,15 @@ jobs:
           key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-dotnet-
+        
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build solution.sln  --no-restore
 
       - name: Run tests and generate coverage report
-        run: dotnet test  -p:CollectCoverage=true -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=opencover
+        run: dotnet test --no-restore --verbosity normal -p:CollectCoverage=true -p:CoverletOutput=TestResults/ -p:CoverletOutputFormat=opencover
         
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
