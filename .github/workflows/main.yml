@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Cache .NET dependencies
         uses: actions/cache@v4
@@ -36,3 +36,20 @@ jobs:
         with:
           name: CoverageReport
           path: ./TestResults/coverage.cobertura.xml
+          if-no-files-found: error
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate human-readable coverage report
+        run: reportgenerator -reports:TestResults/coverage.cobertura.xml -targetdir:CoverageReports -reporttypes:Html
+
+      - name: Upload coverage report to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: CoverageReports
+          path: CoverageReports
+          if-no-files-found: error
+
+      - name: Inspect uploaded artifacts
+        run: ls -l ./TestResults
