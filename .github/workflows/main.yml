@@ -30,3 +30,11 @@ jobs:
 
       - name: Run tests
         run: dotnet test --no-restore
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./TestResults/coverage.cobertura.xml
+          flags: branch
+          name: codecov
+          fail_ci_if_error: true
