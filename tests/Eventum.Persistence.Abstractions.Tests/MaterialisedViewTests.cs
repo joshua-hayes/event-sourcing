@@ -6,6 +6,27 @@ namespace Eventum.Persistence.Abstractions.Tests;
 
 public class MaterialisedViewTests
 {
+    [Fact]
+    public void WhenMaterialisedViewInitialised_Expect_Properties_SetByConstructor()
+    {
+        // Arrange
+
+        string expectedView = "view";
+        string expectedeTag = "etag";
+        var expectedChange = "change";
+        var changes = new List<string> { expectedChange };
+
+        // Act
+
+        var view = new MaterialisedView(expectedView, expectedeTag, changes);
+
+        // Assert
+
+        Assert.Equal(expectedView, view.View);
+        Assert.Equal(expectedeTag, view.Etag);
+        Assert.Contains(expectedChange, changes);
+    }
+
     [Theory]
     [InlineData(nameof(MaterialisedView.Etag))]
     [InlineData(nameof(MaterialisedView.Changeset))]
