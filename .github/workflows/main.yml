@@ -28,6 +28,17 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
 
+      - name: Build project
+        run: dotnet build --no-restore
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Run tests and generate coverage report
         run: dotnet test --no-restore --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=TestResults/
 
@@ -51,5 +62,19 @@ jobs:
           path: CoverageReports
           if-no-files-found: error
 
-      - name: Inspect uploaded artifacts
+  inspect:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: CoverageReport
+          path: ./TestResults
+
+      - name: Inspect downloaded artifacts
         run: ls -l ./TestResults
