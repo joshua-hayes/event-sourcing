@@ -32,8 +32,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "zSolution", "zSolution", "{
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1605043D-FB8E-49EB-AAAA-B905129C7A5F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventum.Serialisation.Abstractions", "src\Eventum.EventSourcing\Eventum.Serialisation.Abstractions\Eventum.Serialisation.Abstractions.csproj", "{18F1C39D-4F2C-451F-9BA1-847001498F08}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventum.Serialisation.Json", "src\Eventum.Serialisation.Json\Eventum.Serialisation.Json.csproj", "{34DC35FF-B4D1-4A48-AADA-262B232D1504}"
