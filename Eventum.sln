@@ -24,6 +24,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventum.Persistence.InMemory", "src\Eventum.Persistence.InMemory\Eventum.Persistence.InMemory.csproj", "{D7A766FF-29FF-41F3-9518-7D70C4BDB759}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventum.Persistence.InMemory.Tests", "tests\Eventum.Persistence.InMemory.Tests\Eventum.Persistence.InMemory.Tests.csproj", "{AD96E7AF-E145-4A3E-B8B2-704C1F51DCCC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{FBE0B4A3-A1EB-4527-84EA-64B53720AF18}"
+	ProjectSection(SolutionItems) = preProject
+		Properties\AssemblyInfo.cs = Properties\AssemblyInfo.cs
+		.github\workflows\main.yml = .github\workflows\main.yml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
