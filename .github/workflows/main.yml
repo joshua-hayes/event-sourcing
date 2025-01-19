@@ -81,9 +81,7 @@ jobs:
           futureRelease: "v${{ env.VERSION }}"
           
       - name: Debug Changelog Output
-        run: |
-          echo "CHANGELOG=${{ steps.preview_changelog.outputs.changelog }}" >> $GITHUB_ENV
-          echo ${{ env.CHANGELOG }}
+        run: echo "CHANGELOG=${{ steps.preview_changelog.outputs.changelog }}" >> $GITHUB_ENV
 
       - name: Commit Changelog
         run: |
