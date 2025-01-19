@@ -71,9 +71,8 @@ jobs:
           pullRequests: true
           prWoLabels: false
           author: true
-          unreleasedLabel: false
-          feature_prefix: '## Features:'
-          bug_prefix: '## Bugs:'
+          enhancementLabel: "## Features:"
+          bugsLabel: "## Bugs"
           
       - name: List Generated Changelog
         run: cat $GITHUB_WORKSPACE/CHANGELOG.md
