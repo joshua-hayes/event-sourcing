@@ -66,17 +66,19 @@ jobs:
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issues: true
+          issues: false
           issuesWoLabels: false
-          pullRequests: false
-          prWoLabels: false
+          pullRequests: true
+          prWoLabels: true
           author: true
+          unreleased: false
+          stripGeneratorNotice: true
+          compareLink: false
           configureSections: "{\"bugs\":{\"prefix\":\"## Bugs:\",\"labels\":[\"bug\"]},\"features\":{\"prefix\":\"## Features:\",\"labels\":[\"feature\",\"enhancement\"]}}"
           enhancementLabel: '## Features:'
           bugsLabel: '## Bugs'
           prLabel: "## What's Changed"
           includeLabels: 'feature,enhancement,bug'
-          stripGeneratorNotice: true
           
       - name: List Generated Changelog
         run: cat $GITHUB_WORKSPACE/CHANGELOG.md
@@ -91,12 +93,12 @@ jobs:
           path: $GITHUB_WORKSPACE/CHANGELOG.md
 
 
-      # # - name: Commit Changelog
-      # #   run: |
-      # #     git config --global user.name "github-actions[bot]"
-      # #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      # #     git add CHANGELOG.md git commit -m "Update changelog for release ${{ github.ref }}"
-      # #     git push
+      # - name: Commit Changelog
+      #   run: |
+      #     git config --global user.name "github-actions[bot]"
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     git add CHANGELOG.md git commit -m "Update changelog for release ${{ github.ref }}"
+      #     git push
 
   release:
     needs: test
