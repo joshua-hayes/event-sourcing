@@ -1,0 +1,25 @@
+# GitHub user and project
+user: joshua-hayes
+project: Eventum
+
+# Exclude specific labels from the changelog
+exclude_labels:
+  - duplicate
+  - invalid
+  - question
+  - wontfix
+
+# Include specific labels in the changelog
+include_labels:
+  - bug
+  - enhancement
+  - feature
+  - documentation
+  - refactor
+
+# Custom section titles
+bug_prefix: '**Fixed bugs:**'
+enhancement_prefix: '**Implemented enhancements:**'
+breaking_change_prefix: '**Breaking changes:**'
+documentation_prefix: '**Documentation updates:**'
+refactor_prefix: '**Code refactoring:**'
