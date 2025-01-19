@@ -76,6 +76,9 @@ jobs:
           CHANGELOG_DOCUMENTATION_PREFIX: "**Documentation updates:**"
           CHANGELOG_REFACTOR_PREFIX: "**Code refactoring:**"
 
+      - name: List Directory Contents
+        run: ls -la /github/workspace
+
       - name: Debug Generated Changelog
         run: cat /github/workspace/CHANGELOG.md
 
