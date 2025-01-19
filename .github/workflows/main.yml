@@ -51,7 +51,7 @@ jobs:
         run: dotnet test --no-restore
 
   changelog:
-    needs: [changelog, test]
+    needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
@@ -103,7 +103,7 @@ jobs:
           git push origin $BRANCH_NAME
 
   release:
-    needs: test
+    needs: [changelog, test]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
