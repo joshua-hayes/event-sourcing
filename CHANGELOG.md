@@ -1,9 +1,10 @@
 # Changelog
 
-## [v0.1.0](https://github.com/joshua-hayes/Eventum/tree/v0.1.0) (2025-01-19)
+## [v0.1.1](https://github.com/joshua-hayes/Eventum/tree/v0.1.1) (2025-01-19)
 
 ## Features:
 
+- Fixed changelog.md generation [\#32](https://github.com/joshua-hayes/Eventum/pull/32) ([joshua-hayes](https://github.com/joshua-hayes))
 - EVE-21: Added debugging for changelog generation [\#31](https://github.com/joshua-hayes/Eventum/pull/31) ([joshua-hayes](https://github.com/joshua-hayes))
 - EVE-21: Added git committer details [\#25](https://github.com/joshua-hayes/Eventum/pull/25) ([joshua-hayes](https://github.com/joshua-hayes))
 - EVE-21: Added githubToken to clog action [\#24](https://github.com/joshua-hayes/Eventum/pull/24) ([joshua-hayes](https://github.com/joshua-hayes))
