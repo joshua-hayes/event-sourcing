@@ -61,10 +61,9 @@ jobs:
         run: echo "VERSION=0.1.0" >> $GITHUB_ENV
 
       - name: Generate Changelog
-        uses: dnbkr/clog@v2
+        uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
-          githubToken: ${{ secrets.CI_BOT_TOKEN }}
-          version: ${{ env.VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
@@ -72,6 +71,7 @@ jobs:
         with:
           tag: v${{ env.VERSION }}
           tag_exists_error: false
+          message: ${{ steps.generate_changelog.outputs.changelog }}
 
       # Print result using the env variable.
       - run: |
@@ -88,7 +88,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          body: ${{ steps.changelog.outputs.changelog }}
+          body: ${{ steps.generate_changelog.outputs.changelog }}
           draft: false
           prerelease: false
 
