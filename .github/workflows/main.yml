@@ -71,9 +71,12 @@ jobs:
           pullRequests: false
           prWoLabels: false
           author: true
+          configureSections: "{\"bugs\":{\"prefix\":\"## Bugs:\",\"labels\":[\"bug\"]},\"features\":{\"prefix\":\"## Features:\",\"labels\":[\"feature\",\"enhancement\"]}}"
           enhancementLabel: '## Features:'
           bugsLabel: '## Bugs'
+          prLabel: "## What's Changed"
           includeLabels: 'feature,enhancement,bug'
+          stripGeneratorNotice: true
           
       - name: List Generated Changelog
         run: cat $GITHUB_WORKSPACE/CHANGELOG.md
