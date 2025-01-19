@@ -65,6 +65,11 @@ jobs:
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          issues: false
+          issuesWoLabels: false
+          pullRequests: true
+          prWoLabels: false
+          author: true
         # env:
         #   CHANGELOG_USER: joshua-hayes
         #   CHANGELOG_PROJECT: Eventum
