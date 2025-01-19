@@ -66,13 +66,14 @@ jobs:
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issues: false
+          issues: true
           issuesWoLabels: false
-          pullRequests: true
+          pullRequests: false
           prWoLabels: false
           author: true
-          enhancementLabel: "## Features:"
-          bugsLabel: "## Bugs"
+          enhancementLabel: '## Features:'
+          bugsLabel: '## Bugs'
+          includeLabels: 'feature,enhancement,bug'
           
       - name: List Generated Changelog
         run: cat $GITHUB_WORKSPACE/CHANGELOG.md
