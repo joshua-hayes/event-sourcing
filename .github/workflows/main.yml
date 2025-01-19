@@ -69,7 +69,7 @@ jobs:
           issues: false
           issuesWoLabels: false
           pullRequests: true
-          prWoLabels: true
+          prWoLabels: false
           author: true
           stripGeneratorNotice: true
           compareLink: false
