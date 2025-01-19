@@ -5,9 +5,10 @@ on:
     branches:
       - '**'
   pull_request:
-    types: [synchronize]
-    branches:
-      - '**'
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   build:
@@ -49,10 +50,10 @@ jobs:
       - name: Run tests
         run: dotnet test --no-restore
 
-  release:
+  changelog:
     needs: test
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -61,32 +62,58 @@ jobs:
         run: echo "VERSION=0.1.0" >> $GITHUB_ENV
 
       - name: Generate Changelog
+        id: preview_changelog
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          CHANGELOG_USER: joshua-hayes
-          CHANGELOG_PROJECT: Eventum
-          CHANGELOG_EXCLUDE_LABELS: "duplicate,invalid,question,wontfix"
-          CHANGELOG_INCLUDE_LABELS: "bug,enhancement,feature,documentation,refactor"
-          CHANGELOG_BUG_PREFIX: "**Fixed bugs:**"
-          CHANGELOG_ENHANCEMENT_PREFIX: "**Implemented enhancements:**"
-          CHANGELOG_BREAKING_CHANGE_PREFIX: "**Breaking changes:**"
-          CHANGELOG_DOCUMENTATION_PREFIX: "**Documentation updates:**"
-          CHANGELOG_REFACTOR_PREFIX: "**Code refactoring:**"
-
-      - name: Debug Generated Changelog
-        run: cat /github/workspace/CHANGELOG.md
-
+          issues: false
+          issuesWoLabels: false
+          pullRequests: true
+          prWoLabels: false
+          author: true
+          stripGeneratorNotice: true
+          compareLink: false
+          configureSections: "{\"bugs\":{\"prefix\":\"## Bugs:\",\"labels\":[\"bug\"]},\"features\":{\"prefix\":\"## Features:\",\"labels\":[\"feature\",\"enhancement\"]}}"
+          enhancementLabel: '## Features:'
+          bugsLabel: '## Bugs'
+          prLabel: "## What's Changed"
+          includeLabels: 'feature,enhancement,bug'
+          futureRelease: "v${{ env.VERSION }}"
+          
       - name: Debug Changelog Output
-        run: echo "${{ steps.generate_changelog.outputs.changelog }}"
+        run: |
+            echo "CHANGELOG=${{ steps.preview_changelog.outputs.changelog }}" > release_notes.txt
+            cat release_notes.txt
 
-      # - name: Commit Changelog
-      #   run: |
-      #     git config --global user.name "github-actions[bot]"
-      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      #     git add CHANGELOG.md git commit -m "Update changelog for release ${{ github.ref }}"
-      #     git push
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes-file
+          path: release_notes.txt
+
+      - name: Commit Changelog
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          git checkout -b $BRANCH_NAME
+          git add CHANGELOG.md
+          git commit -m "Update changelog for release v${{ env.VERSION }}"
+          git pull --rebase origin $BRANCH_NAME
+          git push origin $BRANCH_NAME
+
+  release:
+    needs: test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes-file
 
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
@@ -94,7 +121,7 @@ jobs:
         with:
           tag: v${{ env.VERSION }}
           tag_exists_error: false
-          message: ${{ steps.generate_changelog.outputs.changelog }}
+          message: $(cat release_notes.txt)
 
       # Print result using the env variable.
       - run: |
@@ -111,7 +138,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          body: ${{ steps.generate_changelog.outputs.changelog }}
+          body: $(cat release_notes.txt)
           draft: false
           prerelease: false
 
