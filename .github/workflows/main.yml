@@ -83,7 +83,7 @@ jobs:
         run: ls -la $GITHUB_WORKSPACE
 
       - name: List Generated Changelog
-        run: cat $GITHUB_WORKSPACE/Eventum/CHANGELOG.md
+        run: cat $GITHUB_WORKSPACE/CHANGELOG.md
 
       # - name: Debug Changelog Output
       #   run: echo "${{ steps.generate_changelog.outputs.changelog }}"
@@ -92,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: changelog_output
-          path: $GITHUB_WORKSPACE/Eventum/CHANGELOG.md
+          path: $GITHUB_WORKSPACE/CHANGELOG.md
 
 
       # # - name: Commit Changelog
@@ -114,7 +114,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: changelog_output
-          path: $GITHUB_WORKSPACE/Eventum
+          path: $GITHUB_WORKSPACE
 
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
