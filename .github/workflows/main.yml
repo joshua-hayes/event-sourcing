@@ -75,6 +75,19 @@ jobs:
           CHANGELOG_DOCUMENTATION_PREFIX: "**Documentation updates:**"
           CHANGELOG_REFACTOR_PREFIX: "**Code refactoring:**"
 
+      - name: Debug Generated Changelog
+        run: cat /github/workspace/CHANGELOG.md
+
+      - name: Debug Changelog Output
+        run: echo "${{ steps.generate_changelog.outputs.changelog }}"
+
+      # - name: Commit Changelog
+      #   run: |
+      #     git config --global user.name "github-actions[bot]"
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     git add CHANGELOG.md git commit -m "Update changelog for release ${{ github.ref }}"
+      #     git push
+
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
         id: "tag_create"
