@@ -78,6 +78,11 @@ jobs:
           bugsLabel: '## Bugs'
           prLabel: "## What's Changed"
           includeLabels: 'feature,enhancement,bug'
+
+      - name: Replace Unreleased with Tag
+        run: |
+            TAG_NAME="v${{ env.VERSION }}"
+            sed -i "s/## \ \[Unreleased\\] (.*)/## \ \[$TAG_NAME\\] (https:\\/\\/github.com\\/${{ github.repository }}\\/releases\\/tag\\/$TAG_NAME)/" $GITHUB_WORKSPACE/CHANGELOG.md
           
       - name: List Generated Changelog
         run: cat $GITHUB_WORKSPACE/CHANGELOG.md
