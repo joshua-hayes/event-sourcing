@@ -49,10 +49,10 @@ jobs:
       - name: Run tests
         run: dotnet test --no-restore
 
-  release:
+  changelog:
     needs: test
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -81,12 +81,32 @@ jobs:
       - name: Debug Changelog Output
         run: echo "${{ steps.generate_changelog.outputs.changelog }}"
 
-      # - name: Commit Changelog
-      #   run: |
-      #     git config --global user.name "github-actions[bot]"
-      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      #     git add CHANGELOG.md git commit -m "Update changelog for release ${{ github.ref }}"
-      #     git push
+      - name: Upload Changelog Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog_output
+          path: /github/workspace/CHANGELOG.md
+
+      # # - name: Commit Changelog
+      # #   run: |
+      # #     git config --global user.name "github-actions[bot]"
+      # #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      # #     git add CHANGELOG.md git commit -m "Update changelog for release ${{ github.ref }}"
+      # #     git push
+
+  release:
+    needs: test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Changelog Output
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog_output
+          path: /github/workspace
 
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
