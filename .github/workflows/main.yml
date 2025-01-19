@@ -95,9 +95,11 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          git checkout -b $BRANCH_NAME
           git add CHANGELOG.md
           git commit -m "Update changelog for release v${{ env.VERSION }}"
-          git push
+          git push origin $BRANCH_NAME
 
   release:
     needs: test
