@@ -81,7 +81,15 @@ jobs:
           futureRelease: "v${{ env.VERSION }}"
           
       - name: Debug Changelog Output
-        run: echo "CHANGELOG=${{ steps.preview_changelog.outputs.changelog }}" >> $GITHUB_ENV
+        run: |
+            echo "CHANGELOG=${{ steps.preview_changelog.outputs.changelog }}" > release_notes.txt
+            cat release_notes.txt
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-notes-file
+          path: release_notes.txt
 
       - name: Commit Changelog
         run: |
@@ -98,13 +106,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Download release notes
+        uses: actions/download-artifact@v2
+        with:
+          name: release-notes-file
+
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
         id: "tag_create"
         with:
           tag: v${{ env.VERSION }}
           tag_exists_error: false
-          message: ${{ env.CHANGELOG }}
+          message: $(cat release_notes.txt)
 
       # Print result using the env variable.
       - run: |
@@ -121,7 +134,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          body: ${{ env.CHANGELOG }}
+          body: $(cat release_notes.txt)
           draft: false
           prerelease: false
 
