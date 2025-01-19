@@ -62,7 +62,7 @@ jobs:
         run: echo "VERSION=0.1.0" >> $GITHUB_ENV
 
       - name: Generate Changelog
-        id: generate_changelog
+        id: preview_changelog
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -78,40 +78,19 @@ jobs:
           bugsLabel: '## Bugs'
           prLabel: "## What's Changed"
           includeLabels: 'feature,enhancement,bug'
-
-      - name: Replace Unreleased with Tag
-        run: |
-            TAG_NAME="v${{ env.VERSION }}"
-            sed -i "s/## \
-
-            \[Unreleased\\]
-
-            (.*)/## \
-
-            \[$TAG_NAME\\]
-
-            (https:\\/\\/github.com\\/${{ github.repository }}\\/releases\\/tag\\/$TAG_NAME)/" $GITHUB_WORKSPACE/CHANGELOG.md
-
+          futureRelease: "v${{ env.VERSION }}"
           
-      - name: List Generated Changelog
-        run: cat $GITHUB_WORKSPACE/CHANGELOG.md
+      - name: Debug Changelog Output
+        run: |
+          echo "CHANGELOG=${{ steps.preview_changelog.outputs.changelog }}" >> $GITHUB_ENV
+          echo ${{ env.CHANGELOG }}
 
-      # - name: Debug Changelog Output
-      #   run: echo "${{ steps.generate_changelog.outputs.changelog }}"
-
-      - name: Upload Changelog Output
-        uses: actions/upload-artifact@v4
-        with:
-          name: changelog_output
-          path: $GITHUB_WORKSPACE/CHANGELOG.md
-
-
-      # - name: Commit Changelog
-      #   run: |
-      #     git config --global user.name "github-actions[bot]"
-      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      #     git add CHANGELOG.md git commit -m "Update changelog for release ${{ github.ref }}"
-      #     git push
+      - name: Commit Changelog
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md git commit -m "Update changelog for release v${{ env.VERSION }}"
+          git push
 
   release:
     needs: test
@@ -121,19 +100,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Download Changelog Output
-        uses: actions/download-artifact@v4
-        with:
-          name: changelog_output
-          path: $GITHUB_WORKSPACE
-
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
         id: "tag_create"
         with:
           tag: v${{ env.VERSION }}
           tag_exists_error: false
-          message: ${{ steps.generate_changelog.outputs.changelog }}
+          message: ${{ env.CHANGELOG }}
 
       # Print result using the env variable.
       - run: |
@@ -150,7 +123,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          body: ${{ steps.generate_changelog.outputs.changelog }}
+          body: ${{ env.CHANGELOG }}
           draft: false
           prerelease: false
 
