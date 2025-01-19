@@ -67,17 +67,27 @@ jobs:
           version: ${{ env.VERSION }}
 
       - name: Create Tag
-        run: git tag -a ${{ env.VERSION }} -m "Release version ${{ env.VERSION }}"
-        env:
-          GIT_COMMITTER_NAME: "CI Bot"
-          GIT_COMMITTER_EMAIL: "ci-bot@example.com"
-          CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+        uses: rickstaa/action-create-tag@v1
+        id: "tag_create"
+        with:
+          tag: v${{ env.VERSION }}
+          tag_exists_error: false
+
+      # Print result using the env variable.
+      - run: |
+          echo "Tag already present: ${{ env.TAG_EXISTS }}"
+
+      # Print result using the action output.
+      - run: |
+          echo "Tag already present: ${{ steps.tag_create.outputs.tag_exists }}"
 
       - name: Create Release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: "${{ env.VERSION }}"
+          tag_name: v${{ env.VERSION }}
+          release_name: v"${{ env.VERSION }}"
           body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
@@ -91,3 +101,9 @@ jobs:
           name: NuGetPackage
           path: ./nupkg/*.nupkg
           retention-days: 90
+
+      - name: Publish to NuGet feed
+        run: |
+          for package in ./nupkg/*.nupkg; do
+            dotnet nuget push "$package" --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }}
+          done
