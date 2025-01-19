@@ -99,6 +99,7 @@ jobs:
           git checkout -b $BRANCH_NAME
           git add CHANGELOG.md
           git commit -m "Update changelog for release v${{ env.VERSION }}"
+          git pull --rebase origin $BRANCH_NAME
           git push origin $BRANCH_NAME
 
   release:
