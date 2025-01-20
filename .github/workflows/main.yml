@@ -61,6 +61,14 @@ jobs:
       - name: Set version
         run: echo "VERSION=0.1.2" >> $GITHUB_ENV
 
+
+      - name: Create Tag
+        uses: rickstaa/action-create-tag@v1
+        id: "tag_create"
+        with:
+          tag: v${{ env.VERSION }}
+          tag_exists_error: false
+
       - name: Generate Changelog
         id: preview_changelog
         uses: janheinrichmerker/action-github-changelog-generator@v2.3
@@ -92,9 +100,11 @@ jobs:
 
       - name: Check HISTORY.md content
         run: |
-            if [ -f HISTORY.md ]; then
-              cat HISTORY.md
-            else echo "HISTORY.md not found." fi
+          if [ -f HISTORY.md ]; then
+            cat HISTORY.md
+          else
+            echo "HISTORY.md not found."
+          fi
 
       - name: Commit Changelog
         run: |
@@ -119,21 +129,21 @@ jobs:
         id: changelog
         run: echo "RELEASE_NOTES=$(cat CHANGELOG.md)" >> $GITHUB_ENV
 
-      - name: Create Tag
-        uses: rickstaa/action-create-tag@v1
-        id: "tag_create"
-        with:
-          tag: v${{ env.VERSION }}
-          tag_exists_error: false
-          message: ""
+      # - name: Create Tag
+      #   uses: rickstaa/action-create-tag@v1
+      #   id: "tag_create"
+      #   with:
+      #     tag: v${{ env.VERSION }}
+      #     tag_exists_error: false
+      #     message: ""
 
-      # Print result using the env variable.
-      - run: |
-          echo "Tag already present: ${{ env.TAG_EXISTS }}"
+      # # Print result using the env variable.
+      # - run: |
+      #     echo "Tag already present: ${{ env.TAG_EXISTS }}"
 
-      # Print result using the action output.
-      - run: |
-          echo "Tag already present: ${{ steps.tag_create.outputs.tag_exists }}"
+      # # Print result using the action output.
+      # - run: |
+      #     echo "Tag already present: ${{ steps.tag_create.outputs.tag_exists }}"
 
       - name: Create Release
         uses: actions/create-release@v1
