@@ -50,16 +50,23 @@ jobs:
       - name: Run tests
         run: dotnet test --no-restore
 
-  changelog:
-    needs: test
+  release:
+    needs: [test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set version
-        run: echo "VERSION=0.1.1" >> $GITHUB_ENV
+        run: echo "VERSION=0.1.2" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v${{ env.VERSION }} || true
+          git push origin v${{ env.VERSION }} || true
 
       - name: Generate Changelog
         id: preview_changelog
@@ -70,8 +77,10 @@ jobs:
           issuesWoLabels: false
           pullRequests: true
           prWoLabels: false
+          unreleased: true
           author: true
           stripGeneratorNotice: true
+          onlyLastTag: true
           compareLink: false
           configureSections: "{\"bugs\":{\"prefix\":\"## Bugs:\",\"labels\":[\"bug\"]},\"features\":{\"prefix\":\"## Features:\",\"labels\":[\"feature\",\"enhancement\"]}}"
           enhancementLabel: '## Features:'
@@ -79,58 +88,20 @@ jobs:
           prLabel: "## What's Changed"
           includeLabels: 'feature,enhancement,bug'
           futureRelease: "v${{ env.VERSION }}"
-          
+          base: HISTORY.md
+          output: CHANGELOG.md
+
       - name: Debug Changelog Output
+        run: cat CHANGELOG.md      
+
+      - name: Check HISTORY.md content
         run: |
-            echo "CHANGELOG=${{ steps.preview_changelog.outputs.changelog }}" > release_notes.txt
-            cat release_notes.txt
-
-      - name: Upload release notes
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-notes-file
-          path: release_notes.txt
-
-      - name: Commit Changelog
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          BRANCH_NAME="${GITHUB_HEAD_REF}"
-          git checkout -b $BRANCH_NAME
-          git add CHANGELOG.md
-          git commit -m "Update changelog for release v${{ env.VERSION }}"
-          git pull --rebase origin $BRANCH_NAME
-          git push origin $BRANCH_NAME
-
-  release:
-    needs: [changelog, test]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Download release notes
-        uses: actions/download-artifact@v4
-        with:
-          name: release-notes-file
-
-      - name: Create Tag
-        uses: rickstaa/action-create-tag@v1
-        id: "tag_create"
-        with:
-          tag: v${{ env.VERSION }}
-          tag_exists_error: false
-          message: $(cat release_notes.txt)
-
-      # Print result using the env variable.
-      - run: |
-          echo "Tag already present: ${{ env.TAG_EXISTS }}"
-
-      # Print result using the action output.
-      - run: |
-          echo "Tag already present: ${{ steps.tag_create.outputs.tag_exists }}"
-
+          if [ -f HISTORY.md ]; then
+            cat HISTORY.md
+          else
+            echo "HISTORY.md not found."
+          fi
+          
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -138,7 +109,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          body: $(cat release_notes.txt)
+          body: ${{ steps.preview_changelog.outputs.body }}
           draft: false
           prerelease: false
 
