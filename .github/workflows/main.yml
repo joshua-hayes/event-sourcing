@@ -80,6 +80,7 @@ jobs:
           unreleased: true
           author: true
           stripGeneratorNotice: true
+          onlyLastTag: true
           compareLink: false
           configureSections: "{\"bugs\":{\"prefix\":\"## Bugs:\",\"labels\":[\"bug\"]},\"features\":{\"prefix\":\"## Features:\",\"labels\":[\"feature\",\"enhancement\"]}}"
           enhancementLabel: '## Features:'
