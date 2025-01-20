@@ -1,4 +1,4 @@
-﻿namespace Eventum.Telemetry.Abstractions
+﻿namespace Eventum.Telemetry
 {
     /// <summary>
     /// Provides functionality to track metric data for telemetry purposes.

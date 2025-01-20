@@ -1,4 +1,4 @@
-﻿namespace Eventum.Telemetry.Abstractions
+﻿namespace Eventum.Telemetry
 {
     /// <summary>
     /// Defines the verbosity levels for telemetry tracking.

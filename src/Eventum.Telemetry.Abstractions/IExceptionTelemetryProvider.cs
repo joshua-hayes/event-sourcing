@@ -1,4 +1,4 @@
-﻿namespace Eventum.Telemetry.Abstractions
+﻿namespace Eventum.Telemetry
 {
     /// <summary>
     /// Provides functionality to track exceptions for telemetry purposes.
