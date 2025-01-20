@@ -79,11 +79,13 @@ jobs:
           prLabel: "## What's Changed"
           includeLabels: 'feature,enhancement,bug'
           futureRelease: "v${{ env.VERSION }}"
+          base: HISTORY.md
+          output: CHANGELOG.MD
 
-      - name: Strip top-level header
-        run: |
-            # Remove the first line if it starts with # Changelog
-            sed -i '1{/^# Changelog/d}' CHANGELOG.md
+      # - name: Strip top-level header
+      #   run: |
+      #       # Remove the first line if it starts with # Changelog
+      #       sed -i '1{/^# Changelog/d}' CHANGELOG.md
 
       - name: Debug Changelog Output
         run: cat CHANGELOG.md      
@@ -106,6 +108,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Read the current release notes from CHANGELOG.md
+        id: changelog
+        run: echo "RELEASE_NOTES=$(cat CHANGELOG.md)" >> $GITHUB_ENV
 
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
@@ -130,7 +136,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          body: ""
+          body: ${{ env.RELEASE_NOTES }}
           draft: false
           prerelease: false
 
