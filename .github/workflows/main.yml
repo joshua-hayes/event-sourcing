@@ -78,6 +78,7 @@ jobs:
           issuesWoLabels: false
           pullRequests: true
           prWoLabels: false
+          unreleased: true
           author: true
           stripGeneratorNotice: true
           compareLink: false
