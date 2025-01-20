@@ -80,7 +80,7 @@ jobs:
           includeLabels: 'feature,enhancement,bug'
           futureRelease: "v${{ env.VERSION }}"
           base: HISTORY.md
-          output: CHANGELOG.MD
+          output: CHANGELOG.md
 
       # - name: Strip top-level header
       #   run: |
@@ -92,7 +92,9 @@ jobs:
 
       - name: Check HISTORY.md content
         run: |
-            if [ -f HISTORY.md ]; then cat HISTORY.md else echo "HISTORY.md not found." fi
+            if [ -f HISTORY.md ]; then
+              cat HISTORY.md
+            else echo "HISTORY.md not found." fi
 
       - name: Commit Changelog
         run: |
