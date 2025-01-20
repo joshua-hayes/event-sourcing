@@ -90,6 +90,10 @@ jobs:
       - name: Debug Changelog Output
         run: cat CHANGELOG.md      
 
+      - name: Check HISTORY.md content
+        run: |
+            if [ -f HISTORY.md ]; then cat HISTORY.md else echo "HISTORY.md not found." fi
+
       - name: Commit Changelog
         run: |
           git config --global user.name "github-actions[bot]"
