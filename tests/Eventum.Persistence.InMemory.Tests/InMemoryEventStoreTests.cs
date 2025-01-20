@@ -5,16 +5,25 @@ using Xunit;
 using System.Threading.Tasks;
 using Eventum.EventSourcing;
 using System.Collections.Concurrent;
+using Moq;
+using Eventum.Telemetry.Abstractions;
 
 public partial class InMemoryStoreTests
 {
+    private Mock<ITelemetryProvider> _mockTelemetryProvider;
+
+    public InMemoryStoreTests()
+    {
+        _mockTelemetryProvider = new Mock<ITelemetryProvider>();
+    }
+
     [Fact]
     public async Task WhenStreamIsSaved_Expect_EventVersion_Set()
     {
         // Arrange
 
         var events = new BlockingCollection<IEventStreamEvent>();
-        var store = new InMemoryStore();
+        var store = new InMemoryStore(_mockTelemetryProvider.Object);
         var stream = new LoadTestEventStream("test-stream", Guid.NewGuid().ToString());
         await store.SaveStreamAsync(stream, 0);
 
@@ -33,7 +42,7 @@ public partial class InMemoryStoreTests
     {
         // Arrange
 
-        var store = new InMemoryStore();
+        var store = new InMemoryStore(_mockTelemetryProvider.Object);
 
         // Act
 
@@ -49,7 +58,7 @@ public partial class InMemoryStoreTests
     {
         // Arrange
 
-        var store = new InMemoryStore();
+        var store = new InMemoryStore(_mockTelemetryProvider.Object);
         var stream = new LoadTestEventStream { StreamId = "test-stream", Version = 1 };
 
         // Act
@@ -66,7 +75,7 @@ public partial class InMemoryStoreTests
     {
         // Arrange
 
-        var store = new InMemoryStore();
+        var store = new InMemoryStore(_mockTelemetryProvider.Object);
         var stream = new LoadTestEventStream("test-stream", Guid.NewGuid().ToString());
 
         // Act
