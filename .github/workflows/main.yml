@@ -50,10 +50,10 @@ jobs:
       - name: Run tests
         run: dotnet test --no-restore
 
-  changelog:
-    needs: test
+  release:
+    needs: [test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -91,11 +91,6 @@ jobs:
           base: HISTORY.md
           output: CHANGELOG.md
 
-      # - name: Strip top-level header
-      #   run: |
-      #       # Remove the first line if it starts with # Changelog
-      #       sed -i '1{/^# Changelog/d}' CHANGELOG.md
-
       - name: Debug Changelog Output
         run: cat CHANGELOG.md      
 
@@ -106,46 +101,7 @@ jobs:
           else
             echo "HISTORY.md not found."
           fi
-
-      - name: Commit Changelog
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          BRANCH_NAME="${GITHUB_HEAD_REF}"
-          git checkout -b $BRANCH_NAME
-          git add CHANGELOG.md
-          git commit -m "Update changelog for release v${{ env.VERSION }}"
-          git pull --rebase origin $BRANCH_NAME
-          git push origin $BRANCH_NAME
-
-  release:
-    needs: [test]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Read the current release notes from CHANGELOG.md
-        id: changelog
-        run: echo "RELEASE_NOTES=$(cat CHANGELOG.md)" >> $GITHUB_ENV
-
-      # - name: Create Tag
-      #   uses: rickstaa/action-create-tag@v1
-      #   id: "tag_create"
-      #   with:
-      #     tag: v${{ env.VERSION }}
-      #     tag_exists_error: false
-      #     message: ""
-
-      # # Print result using the env variable.
-      # - run: |
-      #     echo "Tag already present: ${{ env.TAG_EXISTS }}"
-
-      # # Print result using the action output.
-      # - run: |
-      #     echo "Tag already present: ${{ steps.tag_create.outputs.tag_exists }}"
-
+          
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -153,7 +109,7 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
-          body: ${{ env.RELEASE_NOTES }}
+          body: ${{ steps.preview_changelog.outputs.body }}
           draft: false
           prerelease: false
 
