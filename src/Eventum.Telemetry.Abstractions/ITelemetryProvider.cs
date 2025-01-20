@@ -1,10 +1,9 @@
-﻿namespace Eventum.Telemetry.Abstractions
+﻿namespace Eventum.Telemetry.Abstractions;
+
+/// <summary>
+/// Provides a unified interface for tracking telemetry data, including metrics and events.
+/// </summary>
+public interface ITelemetryProvider : IMetricTelemetryProvider,
+                                      IEventTelemetryProvider
 {
-    /// <summary>
-    /// Provides a unified interface for tracking telemetry data, including metrics and events.
-    /// </summary>
-    public interface ITelemetryProvider : IMetricTelemetryProvider,
-                                          IEventTelemetryProvider
-    {
-    }
 }
