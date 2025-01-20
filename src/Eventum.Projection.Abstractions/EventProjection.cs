@@ -1,5 +1,6 @@
 ﻿using Eventum.EventSourcing;
 using Eventum.Persistence;
+using Eventum.Serialisation;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,14 +10,17 @@ namespace Eventum.Projection
     /// Base class for a projection that projects event changes onto a materialised view.
     /// </summary>
     /// <typeparam name="TMaterialisedView">The type of view.</typeparam>
+    /// <typeparam name="IEventSerialiser">The serialiser to user when serialising the view.</typeparam>
     /// <typeparam name="maxChangesetSize">The maximum number of changes that can be tracked.</typeparam>
     public abstract class EventProjection<TMaterialisedView> : IEventProjection where TMaterialisedView : MaterialisedView, new()
     {
         private int _maxChangesetSize;
+        private readonly IEventSerialiser _serialiser;
 
-        protected EventProjection(TMaterialisedView view, int maxChangesetSize = 10)
+        protected EventProjection(TMaterialisedView view, IEventSerialiser serialiser, int maxChangesetSize = 10)
         {
             _maxChangesetSize = maxChangesetSize;
+            _serialiser = serialiser;
             View = view;
         }
 
@@ -45,8 +49,13 @@ namespace Eventum.Projection
         {
             try
             {
+                // Apply change
+
                 ((dynamic)this).Handle((dynamic)@event);
-                View.Serialise();
+
+                // Serialise view
+
+                View.View = _serialiser.Serialise(View);
 
                 // Compute and update the hash of the materialized view
                 var viewHash = ComputeHash(View);
@@ -78,8 +87,8 @@ namespace Eventum.Projection
         private string ComputeHash(TMaterialisedView view)
         {
             using var sha256 = SHA256.Create();
-            var json = View.View.RootElement.ToString();
-            var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(json));
+            var state = View.View;
+            var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(state));
 
             return Convert.ToBase64String(hashBytes);
         }

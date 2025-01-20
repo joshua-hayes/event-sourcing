@@ -1,12 +1,21 @@
 ﻿using Eventum.EventSourcing.Test.Data;
-using Eventum.Projection;
+using Eventum.Persistence;
 using Eventum.Projection.Tests.Data;
+using Eventum.Serialisation;
+using Moq;
 using Xunit;
 
 namespace Eventum.Projection.Tests
 {
     public class EventProjectionTests
     {
+        private Mock<IEventSerialiser> _mockSerialiser;
+
+        public EventProjectionTests()
+        {
+            _mockSerialiser = new Mock<IEventSerialiser>();
+        }
+
         [Fact]
         public void Expect_New_Projection_Sets_View()
         {
@@ -16,7 +25,7 @@ namespace Eventum.Projection.Tests
 
             // Act
 
-            var projection = new TestProjection(view);
+            var projection = new TestProjection(view, _mockSerialiser.Object);
 
             // Assert
 
@@ -31,7 +40,7 @@ namespace Eventum.Projection.Tests
             // Arrange
 
             var @event = new UnhandledEvent();
-            var projection = new TestProjection(new TestView());
+            var projection = new TestProjection(new TestView(), _mockSerialiser.Object);
 
             // Act / Assert
 
@@ -45,16 +54,18 @@ namespace Eventum.Projection.Tests
 
             var view = new TestView();
             var change1 = new TestEvent1("stream1", "f1", 1);
+            _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view");
 
             // Act
 
-            var projection = new TestProjection(view);
+            var projection = new TestProjection(view, _mockSerialiser.Object);
             projection.ApplyChange(@change1);
 
             // Assert
 
             Assert.NotNull(projection.View);
             Assert.NotEmpty(view.Changeset);
+            _mockSerialiser.Verify();
         }
 
         [Fact]
@@ -70,16 +81,20 @@ namespace Eventum.Projection.Tests
             };
 
             var view = new TestView();
-            var projection = new TestProjection(view);
+            var projection = new TestProjection(view, _mockSerialiser.Object);
+            _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view");
             projection.ApplyChange(change1);
+            _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view2");
             projection.ApplyChange(change2);
             var inOrderHash = view.Changeset.Last();
 
             // Act
 
             var compareView = new TestView();
-            var compareProjection = new TestProjection(compareView);
+            var compareProjection = new TestProjection(compareView, _mockSerialiser.Object);
+            _mockSerialiser.Setup(s => s.Serialise(compareView)).Returns("dummy-view2");
             compareProjection.ApplyChange(change2);
+            _mockSerialiser.Setup(s => s.Serialise(compareView)).Returns("dummy-view1");
             compareProjection.ApplyChange(change1);
             var outOfOrderHash = compareView.Changeset.Last();
 
@@ -88,22 +103,25 @@ namespace Eventum.Projection.Tests
             Assert.NotNull(projection.View);
             Assert.NotEmpty(view.Changeset);
             Assert.NotEqual(inOrderHash, outOfOrderHash);
+            _mockSerialiser.Verify(s => s.Serialise(It.IsAny<IMaterialisedView>()), Times.Exactly(4));
         }
 
         [Fact]
         public void When_ChangeSet_Limit_Not_Exceeded_Expect_Applying_Multiple_Events_Applies_Multipe_Changes()
         {
             // Arrange
-
+            
             var view = new TestView();
-            var projection = new TestProjection(view);
-
+            var projection = new TestProjection(view, _mockSerialiser.Object);
             var change1 = new TestEvent1("stream1", "f1", 1);
             var change2 = new TestEvent2("stream1", "f3", DateTime.MinValue);
 
             // Act
 
+            _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view");
             projection.ApplyChange(change1);
+
+            _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view2");
             projection.ApplyChange(change2);
 
             // Assert
@@ -111,6 +129,7 @@ namespace Eventum.Projection.Tests
             Assert.NotNull(projection.View);
             Assert.NotEmpty(view.Changeset);
             Assert.Equal(2, view.Changeset.Count);
+            _mockSerialiser.Verify(s => s.Serialise(It.IsAny<IMaterialisedView>()), Times.Exactly(2));
         }
 
         [Theory]
@@ -121,7 +140,8 @@ namespace Eventum.Projection.Tests
             // Arrange
 
             var view = new TestView();
-            var projection = new TestProjection(view, changesetLimit);
+            var projection = new TestProjection(view, _mockSerialiser.Object, changesetLimit);
+            _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view");
 
             // Act
 
@@ -136,6 +156,7 @@ namespace Eventum.Projection.Tests
 
             // Assert
 
+            _mockSerialiser.Verify(s => s.Serialise(It.IsAny<IMaterialisedView>()), Times.Exactly(changes));
             Assert.NotEmpty(view.Changeset);
             if (changes > changesetLimit)
                 Assert.Equal(changesetLimit, view.Changeset.Count);

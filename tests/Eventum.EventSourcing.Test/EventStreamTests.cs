@@ -1,9 +1,6 @@
-﻿using Eventum.EventSourcing;
-using Eventum.EventSourcing.Test.Data;
-using Eventum.Test.Extensions;
+﻿using Eventum.EventSourcing.Test.Data;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Xunit;
 
 namespace Eventum.EventSourcing.Test
@@ -98,62 +95,48 @@ namespace Eventum.EventSourcing.Test
         }
 
         [Fact]
-        public void Expect_SaveToSnapshot_Saves_StreamId_Version_Name_And_Age_As_JObject()
+        public void Expect_LoadFromSnapshot_Restores_Superclass_Properties()
         {
             // Arrange
 
-            var eventStream = new UserEventStream();
-            var history = new List<IEventStreamEvent> {
-                new UserRegisteredEvent(Guid.NewGuid().ToString(), "Elon Musk", 50) {
-                    Version = 1
-                }
-            };
-            eventStream.LoadFromHistory(history);
+            var expectedEventStream = new UserEventStream();
+            expectedEventStream.StreamId = Guid.NewGuid().ToString();
+            expectedEventStream.Version = 99;
+            var snapshot = expectedEventStream.SaveToSnapshot();
 
             // Act
 
-            var snapshot = eventStream.SaveToSnapshot();
+            var newEventStream = new UserEventStream();
+            newEventStream.LoadFromSnapshot(snapshot);
 
             // Assert
-            Assert.Equal(eventStream.StreamId, snapshot.State.RootElement.GetValue<string>("StreamId"));
-            Assert.Equal(eventStream.Version, snapshot.State.RootElement.GetValue<int>("Version"));
-            Assert.Equal(eventStream.Name, snapshot.State.RootElement.GetValue<string>("Name"));
-            Assert.Equal(eventStream.Age, snapshot.State.RootElement.GetValue<int>("Age"));
+
+            Assert.Equal(expectedEventStream.StreamId, newEventStream.StreamId);
+            Assert.Equal(expectedEventStream.Version, newEventStream.Version);
         }
 
         [Fact]
-        public void Expect_LoadFromSnapshot_Restores_StreamId_Version_Name_And_Age()
+        public void Expect_LoadFromSnapshot_Restores_Subclass_Properties()
         {
             // Arrange
 
-            var eventStream = new UserEventStream();
-            var streamId = Guid.NewGuid().ToString();
-            var version = 2;
-            var name = "Elon Musk";
-            var age = 50;
-            var stateStr = $@"
-            {{
-                ""streamId"": ""{streamId}"",
-                ""version"": {version},
-                ""name"": ""{name}"",
-                ""age"": {age}
-            }}";
+            var expectedEventStream = new UserEventStream();
+            expectedEventStream.Name = "Joe Blogs";
+            expectedEventStream.Age = 6;
+            var snapshot = expectedEventStream.SaveToSnapshot();
 
-            Console.WriteLine(stateStr);
-
-            var state = JsonDocument.Parse(stateStr);
-            var memento = new SnapshotMemento(state);
 
             // Act
 
-            eventStream.LoadFromSnapshot(memento);
+            var newEventStream = new UserEventStream();
+            newEventStream.LoadFromSnapshot(snapshot);
 
             // Assert
 
-            Assert.Equal(streamId, eventStream.StreamId);
-            Assert.Equal(version, eventStream.Version);
-            Assert.Equal(name, eventStream.Name);
-            Assert.Equal(age, eventStream.Age);
+            Assert.Equal(expectedEventStream.StreamId, newEventStream.StreamId);
+            Assert.Equal(expectedEventStream.Version, newEventStream.Version);
+            Assert.Equal(expectedEventStream.Name, newEventStream.Name);
+            Assert.Equal(expectedEventStream.Age, newEventStream.Age);
         }
     }
 }

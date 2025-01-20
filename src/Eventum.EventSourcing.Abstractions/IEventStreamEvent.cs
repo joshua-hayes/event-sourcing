@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json.Serialization;
 
 namespace Eventum.EventSourcing
 {
@@ -11,31 +10,26 @@ namespace Eventum.EventSourcing
         /// <summary>
         /// The unique event identifier.
         /// </summary>
-        [JsonPropertyName("streamId")]
         public string StreamId { get; set; }
 
         /// <summary>
         /// The unique event identifier.
         /// </summary>
-        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// The type of event.
         /// </summary>
-        [JsonPropertyName("eventType")]
         public string EventType { get; set; }
 
         /// <summary>
         /// The time the event was created.
         /// </summary>
-        [JsonPropertyName("eventTime")]
         public DateTime EventTime { get; set; }
 
         /// <summary>
         /// The version associated with the event within the event stream.
         /// </summary>
-        [JsonPropertyName("version")]
         public int Version { get; set; }
     }
 
@@ -44,7 +38,6 @@ namespace Eventum.EventSourcing
         /// <summary>
         /// The main event data / payload.
         /// </summary>
-        [JsonPropertyName("data")]
         public T Data { get; set; }
     }
 }

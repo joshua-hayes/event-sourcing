@@ -48,7 +48,7 @@ namespace Eventum.Persistence.CosmosDb.Tests
 
             Assert.NotNull(view);
             Assert.IsType<TestView>(view);
-            Assert.Equal(JsonDocument.Parse("{}").ToString(), view.View.ToString());
+            Assert.Equal(string.Empty, view.View);
             Assert.Null(view.Etag);
         }
 
@@ -130,7 +130,7 @@ namespace Eventum.Persistence.CosmosDb.Tests
 
             Assert.NotNull(view);
             Assert.IsType<TestView>(view);
-            Assert.Equal(JsonDocument.Parse("{}").ToString(), view.View.ToString());
+            Assert.Equal(string.Empty, view.View);
             Assert.Null(view.Etag);
         }
 

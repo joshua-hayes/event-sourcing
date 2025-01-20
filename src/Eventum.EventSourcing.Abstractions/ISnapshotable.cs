@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿using Eventum.Serialisation.Attributes;
 
 namespace Eventum.EventSourcing
 {
@@ -10,7 +10,7 @@ namespace Eventum.EventSourcing
         /// <summary>
         /// True if this event stream can save and restore state from a snapshot.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreSerialization]
         bool IsSnapshotable { get; }
 
         /// <summary>
