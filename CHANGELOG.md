@@ -1,6 +1,9 @@
-# Changelog
 
 ## [v0.1.1](https://github.com/joshua-hayes/Eventum/tree/v0.1.1) (2025-01-19)
+
+## Bugs:
+
+- Added needs dependency to release job [\#34](https://github.com/joshua-hayes/Eventum/pull/34) ([joshua-hayes](https://github.com/joshua-hayes))
 
 ## Features:
 
