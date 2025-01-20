@@ -61,9 +61,18 @@ jobs:
       - name: Set version
         run: echo "VERSION=0.1.2" >> $GITHUB_ENV
 
+      - name: Check if tag exists
+        id: tag_check
+        run: |
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
 
       - name: Create Tag
         uses: rickstaa/action-create-tag@v1
+        if: env.TAG_EXISTS == 'false'
         id: "tag_create"
         with:
           tag: v${{ env.VERSION }}
