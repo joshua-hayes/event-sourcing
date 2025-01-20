@@ -5,8 +5,10 @@ on:
     branches:
       - '**'
   pull_request:
-    branches:
-      - '**'
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   build:
@@ -28,5 +30,101 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dotnet-
 
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Use cached .NET dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+          key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-dotnet-
+
       - name: Run tests
         run: dotnet test --no-restore
+
+  release:
+    needs: [test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set version
+        run: echo "VERSION=0.1.2" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v${{ env.VERSION }} || true
+          git push origin v${{ env.VERSION }} || true
+
+      - name: Generate Changelog
+        id: preview_changelog
+        uses: janheinrichmerker/action-github-changelog-generator@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issues: false
+          issuesWoLabels: false
+          pullRequests: true
+          prWoLabels: false
+          unreleased: true
+          author: true
+          stripGeneratorNotice: true
+          onlyLastTag: true
+          compareLink: false
+          configureSections: "{\"bugs\":{\"prefix\":\"## Bugs:\",\"labels\":[\"bug\"]},\"features\":{\"prefix\":\"## Features:\",\"labels\":[\"feature\",\"enhancement\"]}}"
+          enhancementLabel: '## Features:'
+          bugsLabel: '## Bugs'
+          prLabel: "## What's Changed"
+          includeLabels: 'feature,enhancement,bug'
+          futureRelease: "v${{ env.VERSION }}"
+          base: HISTORY.md
+          output: CHANGELOG.md
+
+      - name: Debug Changelog Output
+        run: cat CHANGELOG.md      
+
+      - name: Check HISTORY.md content
+        run: |
+          if [ -f HISTORY.md ]; then
+            cat HISTORY.md
+          else
+            echo "HISTORY.md not found."
+          fi
+          
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
+        with:
+          tag_name: v${{ env.VERSION }}
+          release_name: v${{ env.VERSION }}
+          body: ${{ steps.preview_changelog.outputs.body }}
+          draft: false
+          prerelease: false
+
+      - name: Pack NuGet artifacts
+        run: dotnet pack -c Release -o ./nupkg
+
+      - name: Publish NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: NuGetPackage
+          path: ./nupkg/*.nupkg
+          retention-days: 90
+
+      - name: Publish to NuGet feed
+        run: |
+          for package in ./nupkg/*.nupkg; do
+            dotnet nuget push "$package" --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }}
+          done
