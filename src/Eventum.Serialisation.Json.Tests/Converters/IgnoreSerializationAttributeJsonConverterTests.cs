@@ -1,6 +1,8 @@
 ﻿using Eventum.EventSourcing;
 using Eventum.Serialisation.Json.Attributes;
 using Eventum.Serialisation.Json.TestData;
+using Eventum.Telemetry;
+using Moq;
 using System.Text.Json;
 using Xunit;
 
@@ -10,10 +12,12 @@ namespace Eventum.Serialisation.Json.Converters.Tests;
 public class IgnoreSerializationAttributeJsonConverterTests
 {
     private readonly JsonEventSerialiser _jsonEventSerialiser;
+    private IMock<ITelemetryProvider> _mockTelemetryProvider;
 
     public IgnoreSerializationAttributeJsonConverterTests()
     {
-        _jsonEventSerialiser = new JsonEventSerialiser();
+        _mockTelemetryProvider = new Mock<ITelemetryProvider>();
+        _jsonEventSerialiser = new JsonEventSerialiser(_mockTelemetryProvider.Object);
     }
 
     [Fact]
@@ -63,7 +67,7 @@ public class IgnoreSerializationAttributeJsonConverterTests
             PropertyNamingPolicy = null,
             Converters = { new IgnoreSerializationAttributeJsonConverter() },
         };
-        var serialiser = new JsonEventSerialiser(customOptions);
+        var serialiser = new JsonEventSerialiser(customOptions, _mockTelemetryProvider.Object);
         var eventStream = new TestEventStream();
 
         // Act

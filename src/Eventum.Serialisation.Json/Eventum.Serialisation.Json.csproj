@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Eventum.EventSourcing\Eventum.Serialisation.Abstractions\Eventum.Serialisation.Abstractions.csproj" />
+    <ProjectReference Include="..\Eventum.Telemetry.Abstractions\Eventum.Telemetry.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
