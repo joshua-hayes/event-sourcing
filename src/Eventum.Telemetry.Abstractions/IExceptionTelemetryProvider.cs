@@ -13,6 +13,6 @@
         /// <param name="verbosity">The verbosity level of the exception.</param>
         void TrackException(Exception exception,
                             IDictionary<string, string> properties = null,
-                            TelemetryVerbosity verbosity = TelemetryVerbosity.Info);
+                            TelemetryVerbosity verbosity = TelemetryVerbosity.Error);
     }
 }

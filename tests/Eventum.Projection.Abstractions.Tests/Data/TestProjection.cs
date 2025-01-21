@@ -1,6 +1,7 @@
 ﻿using Eventum.EventSourcing;
 using Eventum.Projection;
 using Eventum.Serialisation;
+using Eventum.Telemetry;
 
 namespace Eventum.Projection.Tests.Data
 {
@@ -8,7 +9,10 @@ namespace Eventum.Projection.Tests.Data
                                   IEventHandler<TestEvent1>,
                                   IEventHandler<TestEvent2>
     {
-        public TestProjection(TestView view, IEventSerialiser serialiser, int maxChangesetSize = 10) : base(view, serialiser, maxChangesetSize)
+        public TestProjection(TestView view,
+                              IEventSerialiser serialiser,
+                              ITelemetryProvider telemetryProvider,
+                              int maxChangesetSize = 10) : base(view, serialiser, telemetryProvider, maxChangesetSize)
         {
         }
 

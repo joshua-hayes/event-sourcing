@@ -1,6 +1,9 @@
 ﻿using Eventum.EventSourcing;
 using Eventum.Persistence;
 using Eventum.Serialisation;
+using Eventum.Telemetry;
+using System.Diagnostics;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -16,11 +19,16 @@ namespace Eventum.Projection
     {
         private int _maxChangesetSize;
         private readonly IEventSerialiser _serialiser;
+        private readonly ITelemetryProvider _telemetryProvider;
 
-        protected EventProjection(TMaterialisedView view, IEventSerialiser serialiser, int maxChangesetSize = 10)
+        protected EventProjection(TMaterialisedView view,
+                                  IEventSerialiser serialiser,
+                                  ITelemetryProvider telemetryProvider,
+                                  int maxChangesetSize = 10)
         {
             _maxChangesetSize = maxChangesetSize;
             _serialiser = serialiser;
+            _telemetryProvider = telemetryProvider;
             View = view;
         }
 
@@ -47,6 +55,7 @@ namespace Eventum.Projection
         /// </summary>
         public void ApplyChange(IEventStreamEvent @event)
         {
+            var stopwatch = Stopwatch.StartNew();
             try
             {
                 // Apply change
@@ -71,10 +80,20 @@ namespace Eventum.Projection
                         View.Changeset.RemoveAt(0);
                     }
                 }
+                _telemetryProvider.TrackMetric("EventProjection.ApplyChange.Time", stopwatch.ElapsedMilliseconds);
             }
             catch
             {
-                throw new EventProjectionException(this.GetType().Name, View, @event);
+                var ex = new EventProjectionException(this.GetType().Name, View, @event);
+                _telemetryProvider.TrackException(ex, new Dictionary<string, string>()
+                {
+                    { "Operation", "ApplyChange" },
+                    { "StreamId", @event.StreamId },
+                    { "EventId", @event.Id },
+                    { "ErrorMessage", ex.Message},
+                    { "StackTrace", ex.StackTrace},
+                });
+                throw ex;
             }
         }
 

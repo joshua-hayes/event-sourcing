@@ -2,6 +2,7 @@
 using Eventum.Persistence;
 using Eventum.Telemetry;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 
 namespace Eventum.Persistence.InMemory
@@ -31,7 +32,7 @@ namespace Eventum.Persistence.InMemory
         /// </summary>
         public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream
         {
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
             try
             { 
                 var events = _events.Where(e => e.StreamId == streamId)
@@ -62,7 +63,7 @@ namespace Eventum.Persistence.InMemory
         /// </summary>
         public async Task<bool> SaveStreamAsync(EventStream stream, int expectedVersion)
         {
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
             try
             {
                 var existingEvents = _events.Where(e => e.StreamId == stream.StreamId)

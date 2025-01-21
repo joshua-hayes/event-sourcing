@@ -1,7 +1,10 @@
-﻿using Eventum.Persistence;
+﻿using Eventum.EventSourcing;
+using Eventum.Persistence;
 using Eventum.Projection;
 using Eventum.Projection.Tests.Data;
+using Eventum.Telemetry;
 using Moq;
+using System.Collections.Concurrent;
 using System.Reflection;
 using Xunit;
 
