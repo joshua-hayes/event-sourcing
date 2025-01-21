@@ -8,11 +8,11 @@
         /// <summary>
         /// Tracks an exception with an optional set of properties.
         /// </summary>
-        /// <param name="name">The name of the exception to track.</param>
+        /// <param name="exception">The exception to track.</param>
         /// <param name="properties">Optional additional properties associated with the event.</param>
         /// <param name="verbosity">The verbosity level of the exception.</param>
-        void TrackEvent(string name,
-                        IDictionary<string, string> properties = null,
-                        TelemetryVerbosity verbosity = TelemetryVerbosity.Info);
+        void TrackException(Exception exception,
+                            IDictionary<string, string> properties = null,
+                            TelemetryVerbosity verbosity = TelemetryVerbosity.Info);
     }
 }

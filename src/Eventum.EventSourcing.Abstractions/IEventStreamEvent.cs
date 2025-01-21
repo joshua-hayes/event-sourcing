@@ -8,7 +8,7 @@ namespace Eventum.EventSourcing
     public interface IEventStreamEvent
     {
         /// <summary>
-        /// The unique event identifier.
+        /// The event stream identifier.
         /// </summary>
         public string StreamId { get; set; }
 
