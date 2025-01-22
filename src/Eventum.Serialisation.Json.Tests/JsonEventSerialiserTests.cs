@@ -2,16 +2,21 @@
 using System.Text.Json.Serialization;
 using Xunit;
 using Eventum.Serialisation.Json.TestData;
+using Moq;
+using Eventum.Telemetry;
+using Xunit.Sdk;
 
 namespace Eventum.Serialisation.Json.Tests;
 
 public partial class JsonEventSerialiserTests
 {
     private readonly JsonEventSerialiser _jsonEventSerialiser;
+    private Mock<ITelemetryProvider> _mockTelemetryProvider;
 
     public JsonEventSerialiserTests()
     {
-        _jsonEventSerialiser = new JsonEventSerialiser();
+        _mockTelemetryProvider = new Mock<ITelemetryProvider>();
+        _jsonEventSerialiser = new JsonEventSerialiser(_mockTelemetryProvider.Object);
     }
 
     [Theory]
@@ -78,7 +83,7 @@ public partial class JsonEventSerialiserTests
         var customOptions = new JsonSerializerOptions {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = false
         };
-        var serialiser = new JsonEventSerialiser(customOptions);
+        var serialiser = new JsonEventSerialiser(customOptions, _mockTelemetryProvider.Object);
 
         // Act
 
@@ -101,7 +106,7 @@ public partial class JsonEventSerialiserTests
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
         var obj = new TestObject { Property1 = "Value1", Property2 = "Value2" };
-        var serialiser = new JsonEventSerialiser(customOptions);
+        var serialiser = new JsonEventSerialiser(customOptions, _mockTelemetryProvider.Object);
 
         // Act
 
@@ -111,5 +116,81 @@ public partial class JsonEventSerialiserTests
 
         var expectedJson = "{\"property1\":\"Value1\",\"property2\":\"Value2\"}";
         Assert.Equal(expectedJson, json);
+    }
+
+    [Fact]
+    public void Expect_Serialise_TracksMetricAndNoException()
+    {
+        // Arrange
+
+        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2" };
+
+        // Act
+
+        var jsonString = _jsonEventSerialiser.Serialise(obj);
+
+        // Assert
+
+        _mockTelemetryProvider.Verify(tp => tp.TrackMetric("JsonEventSerialiser.Serialise.Time",
+                                                           It.IsAny<double>(),
+                                                           null,
+                                                           TelemetryVerbosity.Info), Times.Once);
+        _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
+                                                              It.IsAny<IDictionary<string, string>>(),
+                                                              It.IsAny<TelemetryVerbosity>()),
+                                      Times.Never);
+    }
+
+    [Fact]
+    public void Expect_Deserialise_TracksMetricAndNoException()
+    {
+        // Arrange
+
+        var jsonString = "{\"id\":1,\"name\":\"Test\"}";
+
+        // Act
+
+        var obj = _jsonEventSerialiser.Deserialise<TestClass>(jsonString);
+
+        // Assert
+
+        _mockTelemetryProvider.Verify(tp => tp.TrackMetric("JsonEventSerialiser.Deserialise.Time",
+                                                           It.IsAny<double>(),
+                                                           null,
+                                                           TelemetryVerbosity.Info), Times.Once);
+        _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
+                                                              It.IsAny<IDictionary<string, string>>(),
+                                                              It.IsAny<TelemetryVerbosity>()), Times.Never);
+    }
+
+    [Fact]
+    public void WhenErrorOccurs_Expect_Serialise_TracksException()
+    {
+        // Arrange
+
+        var mockSerialiser = new Mock<IEventSerialiser>();
+        mockSerialiser.Setup(s => s.Serialise(It.IsAny<object>())).Throws(new Exception("Serialisation Error"));
+
+        var obj = new TestObject { Property1 = "Value1", Property2 = "Value2" };
+
+        // Act & Assert
+
+        Assert.Throws<ArgumentNullException>(() => _jsonEventSerialiser.Serialise<object>(null));
+
+        _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
+                                                              It.Is<IDictionary<string, string>>(d => d["Operation"] == "Serialise"),
+                                                              TelemetryVerbosity.Error), Times.Once);
+    }
+
+    [Fact]
+    public void WhenErrorOccurs_Expect_Deserialise_TracksException_()
+    {
+        // Act & Assert
+
+        Assert.Throws<ArgumentNullException>(() => _jsonEventSerialiser.Deserialise<object>(null));
+
+        _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
+                                                              It.Is<IDictionary<string, string>>(d => d["Operation"] == "Deserialise"),
+                                                              TelemetryVerbosity.Error), Times.Once);
     }
 }

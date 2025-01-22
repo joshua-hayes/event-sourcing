@@ -5,19 +5,21 @@ public partial class InMemoryStoreTests
 {
     public class LoadTestStartedEvent : EventStreamEvent
     {
-        public LoadTestStartedEvent(string streamId, string id)
+        public LoadTestStartedEvent(string streamId, string id, int version)
         {
             StreamId = streamId;
             Id = id;
+            Version = version;
         }
     }
 
     public class LoadTestEvent : EventStreamEvent
     {
-        public LoadTestEvent(string streamId, string id)
+        public LoadTestEvent(string streamId, string id, int version)
         {
             StreamId = streamId;
             Id = id;
+            Version = version;
         }
     }
 
@@ -31,7 +33,7 @@ public partial class InMemoryStoreTests
 
         public LoadTestEventStream(string streamId, string id)
         {
-            ApplyChange(new LoadTestStartedEvent(streamId, id));
+            ApplyChange(new LoadTestStartedEvent(streamId, id, 1));
         }
 
         public void Handle(LoadTestStartedEvent @event)

@@ -1,5 +1,4 @@
 ﻿using Eventum.EventSourcing;
-using System.Threading.Tasks;
 
 namespace Eventum.Persistence
 {

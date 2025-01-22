@@ -1,6 +1,9 @@
 ﻿using Eventum.EventSourcing;
 using Eventum.Persistence;
+using Eventum.Telemetry;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.IO;
 
 namespace Eventum.Persistence.InMemory
 {
@@ -10,14 +13,18 @@ namespace Eventum.Persistence.InMemory
     public class InMemoryStore : IEventStore
     {
         private readonly BlockingCollection<IEventStreamEvent> _events;
+        private readonly ITelemetryProvider _telemetryProvider;
 
-        public InMemoryStore() :this(new BlockingCollection<IEventStreamEvent>())
+
+        public InMemoryStore(ITelemetryProvider telemetryProvider) :this(new BlockingCollection<IEventStreamEvent>(),
+                                                                         telemetryProvider)
         {
         }
 
-        public InMemoryStore(BlockingCollection<IEventStreamEvent> events)
+        public InMemoryStore(BlockingCollection<IEventStreamEvent> events, ITelemetryProvider telemetryProvider)
         {
             _events = events;
+            _telemetryProvider = telemetryProvider;
         }
 
         /// <summary>
@@ -25,14 +32,30 @@ namespace Eventum.Persistence.InMemory
         /// </summary>
         public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream
         {
-            var events = _events.Where(e => e.StreamId == streamId)
-                                .OrderBy(e => e.Version)
-                                .ToArray();
+            var stopwatch = Stopwatch.StartNew();
+            try
+            { 
+                var events = _events.Where(e => e.StreamId == streamId)
+                                    .OrderBy(e => e.Version)
+                                    .ToArray();
 
-            var stream = Activator.CreateInstance<T>();
-            stream.LoadFromHistory(events);
-            
-            return stream;
+                var stream = Activator.CreateInstance<T>();
+                stream.LoadFromHistory(events);
+
+                _telemetryProvider.TrackMetric("InMemoryStore.LoadStreamAsync.Time", stopwatch.ElapsedMilliseconds);
+                return stream;
+            }
+            catch(Exception ex)
+            {
+                _telemetryProvider.TrackException(ex, new Dictionary<string, string>()
+                {
+                    { "Operation", "LoadStreamAsync" },
+                    { "StreamId", streamId },
+                    { "ErrorMessage", ex.Message},
+                    { "StackTrace", ex.StackTrace},
+                });
+                throw;
+            }
         }
 
         /// <summary>
@@ -40,22 +63,46 @@ namespace Eventum.Persistence.InMemory
         /// </summary>
         public async Task<bool> SaveStreamAsync(EventStream stream, int expectedVersion)
         {
-            var existingEvents = _events.Where(e => e.StreamId == stream.StreamId)
-                                        .OrderBy(e => e.Version)
-                                        .ToArray();
-            
-            if (existingEvents.Length != expectedVersion) 
-                return false;
-
-            foreach (var @event in stream.UncommittedChanges)
+            var stopwatch = Stopwatch.StartNew();
+            try
             {
-                @event.EventType = @event.GetType().Name;
-                @event.Version = ++expectedVersion;
+                var existingEvents = _events.Where(e => e.StreamId == stream.StreamId)
+                                            .OrderBy(e => e.Version)
+                                            .ToArray();
 
-                _events.Add(@event);
+                if (existingEvents.Length != expectedVersion)
+                {
+                    _telemetryProvider.TrackEvent("InMemoryStore.SaveStreamAsync.VersionMismatch", new Dictionary<string, string>
+                    {
+                        { "StreamId", stream.StreamId },
+                        { "ExpectedVersion", expectedVersion.ToString() },
+                        { "ActualVersion", existingEvents.Length.ToString() }
+                    }, TelemetryVerbosity.Warning);
+                    return false;
+                }
+
+                foreach (var @event in stream.UncommittedChanges)
+                {
+                    @event.EventType = @event.GetType().Name;
+                    @event.Version = ++expectedVersion;
+
+                    _events.Add(@event);
+                }
+
+                _telemetryProvider.TrackMetric("InMemoryStore.SaveStreamAsync.Time", stopwatch.ElapsedMilliseconds);
+                return true;
             }
-
-            return true;
+            catch (Exception ex)
+            {
+                _telemetryProvider.TrackException(ex, new Dictionary<string, string>()
+                {
+                    { "Operation", "LoadStreamAsync" },
+                    { "StreamId", stream.StreamId },
+                    { "ErrorMessage", ex.Message},
+                    { "StackTrace", ex.StackTrace},
+                });
+                throw;
+            }
         }
     }
 }

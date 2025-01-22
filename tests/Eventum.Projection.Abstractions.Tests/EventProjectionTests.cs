@@ -1,8 +1,11 @@
-﻿using Eventum.EventSourcing.Test.Data;
+﻿using Eventum.EventSourcing;
+using Eventum.EventSourcing.Test.Data;
 using Eventum.Persistence;
 using Eventum.Projection.Tests.Data;
 using Eventum.Serialisation;
+using Eventum.Telemetry;
 using Moq;
+using System.Collections.Concurrent;
 using Xunit;
 
 namespace Eventum.Projection.Tests
@@ -10,10 +13,12 @@ namespace Eventum.Projection.Tests
     public class EventProjectionTests
     {
         private Mock<IEventSerialiser> _mockSerialiser;
+        private Mock<ITelemetryProvider> _mockTelemetryProvider;
 
         public EventProjectionTests()
         {
             _mockSerialiser = new Mock<IEventSerialiser>();
+            _mockTelemetryProvider = new Mock<ITelemetryProvider>();
         }
 
         [Fact]
@@ -25,7 +30,7 @@ namespace Eventum.Projection.Tests
 
             // Act
 
-            var projection = new TestProjection(view, _mockSerialiser.Object);
+            var projection = new TestProjection(view, _mockSerialiser.Object, _mockTelemetryProvider.Object);
 
             // Assert
 
@@ -40,7 +45,7 @@ namespace Eventum.Projection.Tests
             // Arrange
 
             var @event = new UnhandledEvent();
-            var projection = new TestProjection(new TestView(), _mockSerialiser.Object);
+            var projection = new TestProjection(new TestView(), _mockSerialiser.Object, _mockTelemetryProvider.Object);
 
             // Act / Assert
 
@@ -58,7 +63,7 @@ namespace Eventum.Projection.Tests
 
             // Act
 
-            var projection = new TestProjection(view, _mockSerialiser.Object);
+            var projection = new TestProjection(view, _mockSerialiser.Object, _mockTelemetryProvider.Object);
             projection.ApplyChange(@change1);
 
             // Assert
@@ -73,15 +78,17 @@ namespace Eventum.Projection.Tests
         {
             // Arrange
 
-            var change1 = new TestEvent1("stream1", "f1", 1) {
+            var change1 = new TestEvent1("stream1", "f1", 1)
+            {
                 Version = 1
             };
-            var change2 = new TestEvent2("stream1", "f3", DateTime.MinValue) {
+            var change2 = new TestEvent2("stream1", "f3", DateTime.MinValue)
+            {
                 Version = 2
             };
 
             var view = new TestView();
-            var projection = new TestProjection(view, _mockSerialiser.Object);
+            var projection = new TestProjection(view, _mockSerialiser.Object, _mockTelemetryProvider.Object);
             _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view");
             projection.ApplyChange(change1);
             _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view2");
@@ -91,7 +98,7 @@ namespace Eventum.Projection.Tests
             // Act
 
             var compareView = new TestView();
-            var compareProjection = new TestProjection(compareView, _mockSerialiser.Object);
+            var compareProjection = new TestProjection(compareView, _mockSerialiser.Object, _mockTelemetryProvider.Object);
             _mockSerialiser.Setup(s => s.Serialise(compareView)).Returns("dummy-view2");
             compareProjection.ApplyChange(change2);
             _mockSerialiser.Setup(s => s.Serialise(compareView)).Returns("dummy-view1");
@@ -110,9 +117,9 @@ namespace Eventum.Projection.Tests
         public void When_ChangeSet_Limit_Not_Exceeded_Expect_Applying_Multiple_Events_Applies_Multipe_Changes()
         {
             // Arrange
-            
+
             var view = new TestView();
-            var projection = new TestProjection(view, _mockSerialiser.Object);
+            var projection = new TestProjection(view, _mockSerialiser.Object, _mockTelemetryProvider.Object);
             var change1 = new TestEvent1("stream1", "f1", 1);
             var change2 = new TestEvent2("stream1", "f3", DateTime.MinValue);
 
@@ -140,12 +147,12 @@ namespace Eventum.Projection.Tests
             // Arrange
 
             var view = new TestView();
-            var projection = new TestProjection(view, _mockSerialiser.Object, changesetLimit);
+            var projection = new TestProjection(view, _mockSerialiser.Object, _mockTelemetryProvider.Object, changesetLimit);
             _mockSerialiser.Setup(s => s.Serialise(view)).Returns("dummy-view");
 
             // Act
 
-            for (int i=1; i<= changes; i++)
+            for (int i = 1; i <= changes; i++)
             {
                 var @event = new TestEvent1(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 1)
                 {
@@ -162,6 +169,55 @@ namespace Eventum.Projection.Tests
                 Assert.Equal(changesetLimit, view.Changeset.Count);
             else
                 Assert.Equal(changes, view.Changeset.Count);
+        }
+
+        [Fact]
+        public void Expect_ApplyChange_TracksMetricAndNoException()
+        {
+            // Arrange
+            
+            _mockSerialiser.Setup(s => s.Serialise(It.IsAny<MaterialisedView>())).Returns("SerializedView");
+
+            var view = new TestView();
+            var projection = new TestProjection(view, _mockSerialiser.Object, _mockTelemetryProvider.Object);
+            var @event = new TestEvent2("testStream", "field3", DateTime.MaxValue);
+
+            // Act
+
+            projection.ApplyChange(@event);
+
+            // Assert
+
+            _mockTelemetryProvider.Verify(tp => tp.TrackMetric("EventProjection.ApplyChange.Time",
+                                                               It.IsAny<double>(),
+                                                               null,
+                                                               TelemetryVerbosity.Info), Times.Once);
+            _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
+                                                                  It.IsAny<IDictionary<string, string>>(),
+                                                                  It.IsAny<TelemetryVerbosity>()), Times.Never);
+        }
+
+        [Fact]
+        public void WhenErrorOccurs_Expect_ApplyChange_TracksException()
+        {
+            // Arrange
+
+            _mockSerialiser.Setup(s => s.Serialise(It.IsAny<MaterialisedView>())).Throws(new Exception("Serialisation Error"));
+
+            var view = new TestView();
+            var projection = new TestProjection(view, _mockSerialiser.Object, _mockTelemetryProvider.Object);
+            var @event = new TestEvent2("testStream", "field3", DateTime.MaxValue);
+
+            // Act & Assert
+
+            Assert.Throws<EventProjectionException>(() => projection.ApplyChange(@event));
+
+            _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<EventProjectionException>(),
+                                                                  It.Is<IDictionary<string, string>>(d =>
+                                                                  d["Operation"] == "ApplyChange" &&
+                                                                  d["StreamId"] == @event.StreamId &&
+                                                                  d["EventId"] == @event.Id),
+                                                                  TelemetryVerbosity.Error), Times.Once);
         }
 
     }

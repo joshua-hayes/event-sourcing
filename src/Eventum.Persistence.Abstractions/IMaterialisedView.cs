@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace Eventum.Persistence
+﻿namespace Eventum.Persistence
 {
     /// <summary>
     /// Stores state in the form of a view that can be hydrated to apply further changes.
