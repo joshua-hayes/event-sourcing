@@ -2,6 +2,10 @@
 
 namespace Eventum.Persistence
 {
+    /// <summary>
+    /// Provides an abstraction for a store that saves and loads events. Specifically,
+    /// eventstreams (which is similar to the DDD concept of an Aggregate or AggregateRoot).
+    /// </summary>
     public interface IEventStore
     {
         /// <summary>
