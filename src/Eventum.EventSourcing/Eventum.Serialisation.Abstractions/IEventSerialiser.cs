@@ -1,4 +1,5 @@
-﻿namespace Eventum.Serialisation
+﻿
+namespace Eventum.Serialisation
 {
     /// <summary>
     /// Provides an abstraction for serialising an object to / from a string.
@@ -20,5 +21,14 @@
         /// <param name="data">The data from which to de-serialise the object.</param>
         /// <returns>The de-serialised object.</returns>
         T Deserialise<T>(string data);
+
+        /// <summary>
+        /// De-serialises the provided data into an instance of the type specified.
+        /// </summary>
+        /// <typeparam name="T">The type of object being de-serialised.</typeparam>
+        /// <param name="eventType">The type of the event being deserialised.</param>
+        /// <param name="data">The data from which to de-serialise the object.</param>
+        /// <returns>The de-serialised object.</returns>
+        object Deserialise(string data, Type eventType);
     }
 }
