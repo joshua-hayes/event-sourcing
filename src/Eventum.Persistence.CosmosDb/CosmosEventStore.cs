@@ -15,11 +15,11 @@ namespace Eventum.Persistence.CosmosDb
     /// </summary>
     public class CosmosEventStore : IEventStore
     {
-        private readonly IEventTypeResolver _eventTypeResolver;
+        private readonly ITypeResolver _eventTypeResolver;
         private readonly CosmosClient _client;
         private readonly Container _container;
 
-        public CosmosEventStore(IEventTypeResolver eventTypeResolver,
+        public CosmosEventStore(ITypeResolver eventTypeResolver,
                                 CosmosClient client,
                                 string databaseId,
                                 string containerId = "events")
