@@ -1,5 +1,6 @@
 ﻿using Eventum.EventSourcing;
 using Eventum.Persistence;
+using Eventum.Reflection.TypeResolution;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

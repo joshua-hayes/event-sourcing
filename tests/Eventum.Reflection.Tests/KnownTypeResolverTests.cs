@@ -1,12 +1,11 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 
-namespace Eventum.EventSourcing.Test;
+namespace Eventum.Reflection.TypeResolution.Tests;
 public class KnownTypeResolverTests
 {
     private readonly KnownTypeResolver _resolver;
-    private readonly string _namespace = "Eventum.EventSourcing.Test.Data";
-    private readonly string _assembly = "Eventum.EventSourcing.Test";
+    private readonly string _namespace = "Eventum.Reflection.TypeResolution.Tests";
+    private readonly string _assembly = "Eventum.Reflection.Tests";
 
     public KnownTypeResolverTests()
     {
@@ -18,7 +17,7 @@ public class KnownTypeResolverTests
     {
         // Arrange
 
-        var typeName = "UserRegisteredEvent";
+        var typeName = "KnownTypeResolverTests";
 
         // Act
 
