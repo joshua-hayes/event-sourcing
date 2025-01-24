@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Eventum.Reflection.TypeResolution;
+﻿namespace Eventum.Reflection.TypeResolution;
 
 /// <inheritdoc />
 public class KnownTypeResolver : ITypeResolver
