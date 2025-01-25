@@ -52,15 +52,17 @@ public class DynamoDBEventStore : IEventStore
         {
             var queryRequest = new QueryRequest {
                 TableName = _tableName,
+                ScanIndexForward = true,
+                ConsistentRead = true,
+                ReturnConsumedCapacity = "TOTAL",
                 KeyConditionExpression = "streamId = :streamId",
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
                     { ":streamId", new AttributeValue { S = streamId } }
-                },
-                ScanIndexForward = true,
-                ConsistentRead = true
+                }
             };
             var response = await _dynamoDbClient.QueryAsync(queryRequest);
+            _telemetryProvider.TrackMetric("DynamoDBEventStore.LoadStreamAsync.ConsumedCapacity", response.ConsumedCapacity.CapacityUnits);
 
             var events = response.Items.Select(item =>
             {
@@ -164,6 +166,7 @@ public class DynamoDBEventStore : IEventStore
     /// <returns>The task.</returns>
     private async Task SaveEventsAsync(EventStream stream, int expectedVersion)
     {
+        double totalConsumedCapacity = 0;
         foreach (var @event in stream.UncommittedChanges)
         {
             @event.EventType = @event.GetType().Name;
@@ -177,6 +180,7 @@ public class DynamoDBEventStore : IEventStore
             var putRequest = new PutItemRequest
             {
                 TableName = _tableName,
+                ReturnConsumedCapacity = "TOTAL",
                 Item = new Dictionary<string, AttributeValue>
                 {
                     { "streamId", new AttributeValue { S = @event.StreamId } },
@@ -188,8 +192,10 @@ public class DynamoDBEventStore : IEventStore
                 }
             };
 
-            await _dynamoDbClient.PutItemAsync(putRequest);
+            var response = await _dynamoDbClient.PutItemAsync(putRequest);
+            totalConsumedCapacity += response.ConsumedCapacity.CapacityUnits;
         }
+        _telemetryProvider.TrackMetric("DynamoDBEventStore.SaveStreamAsync.ConsumedCapacity", totalConsumedCapacity);
     }
 
 

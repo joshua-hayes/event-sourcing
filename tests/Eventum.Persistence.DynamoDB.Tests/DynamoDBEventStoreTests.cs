@@ -55,9 +55,15 @@ public class DynamoDBEventStoreTests
                                Items = new List<Dictionary<string, AttributeValue>>()
                            });
 
-        _mockDynamoDbClient
-            .Setup(client => client.PutItemAsync(It.IsAny<PutItemRequest>(), default))
-            .ReturnsAsync(new PutItemResponse());
+        _mockDynamoDbClient.Setup(client => client.PutItemAsync(It.IsAny<PutItemRequest>(), default))
+                            .ReturnsAsync(new PutItemResponse()
+                            {
+                                ConsumedCapacity = new ConsumedCapacity
+                                {
+                                    TableName = _tableName,
+                                    CapacityUnits = 1
+                                }
+                            });
 
         // Act
 
@@ -151,37 +157,45 @@ public class DynamoDBEventStoreTests
         var accountName = "Joe Bloggs";
         var eventStream = new BankAccountEventStream(streamId, accountId, accountName, 0.0);
         var expectedVersion = 0;
+        var expectedConsumedCapacity = 2.0;
 
-        _mockDynamoDbClient
-            .Setup(client => client.QueryAsync(It.IsAny<QueryRequest>(), default))
-            .ReturnsAsync(new QueryResponse
-            {
-                Items = new List<Dictionary<string, AttributeValue>>()
-            });
+        _mockDynamoDbClient.Setup(client => client.QueryAsync(It.IsAny<QueryRequest>(), default))
+                           .ReturnsAsync(new QueryResponse
+                           {
+                               Items = new List<Dictionary<string, AttributeValue>>(),
+                           });
 
-        _mockDynamoDbClient
-            .Setup(client => client.PutItemAsync(It.IsAny<PutItemRequest>(), default))
-            .ReturnsAsync(new PutItemResponse());
+        _mockDynamoDbClient.Setup(client => client.PutItemAsync(It.IsAny<PutItemRequest>(), default))
+                           .ReturnsAsync(new PutItemResponse()
+                           {
+                               ConsumedCapacity = new ConsumedCapacity
+                               {
+                                   TableName = _tableName,
+                                   CapacityUnits = expectedConsumedCapacity
+                               }
+                           });
 
         // Act
+
         var result = await _eventStore.SaveStreamAsync(eventStream, expectedVersion);
 
         // Assert
+
         Assert.True(result);
         _mockTelemetryProvider.Verify(tp => tp.TrackMetric("DynamoDBEventStore.SaveStreamAsync.Time",
                                                   It.IsAny<double>(),
                                                   null,
                                                   TelemetryVerbosity.Info),
                                                   Times.Once);
+        _mockTelemetryProvider.Verify(telemetry => telemetry.TrackMetric("DynamoDBEventStore.SaveStreamAsync.ConsumedCapacity",
+                                                                         expectedConsumedCapacity,
+                                                                         null,
+                                                                         TelemetryVerbosity.Info), Times.Once);
         _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
                                                               It.IsAny<IDictionary<string, string>>(),
                                                               It.IsAny<TelemetryVerbosity>()),
                                    Times.Never);
     }
-
-
-
-
 
     [Fact]
     public async Task Expect_LoadStreamAsync_TracksMetricWithNoException()
@@ -196,11 +210,12 @@ public class DynamoDBEventStoreTests
             EventType = nameof(AccountOpenedEvent)
         };
         var serializedEventData = _serialiser.Serialise(accountOpened);
+        var expectedConsumedCapacity = 5.0;
 
         _mockDynamoDbClient.Setup(client => client.QueryAsync(It.IsAny<QueryRequest>(), default))
-                            .ReturnsAsync(new QueryResponse
-                            {
-                                Items = new List<Dictionary<string, AttributeValue>>
+                           .ReturnsAsync(new QueryResponse
+                           {
+                               Items = new List<Dictionary<string, AttributeValue>>
                                 {
                                     new Dictionary<string, AttributeValue>
                                     {
@@ -211,8 +226,13 @@ public class DynamoDBEventStoreTests
                                         { "eventTime", new AttributeValue { N = new DateTimeOffset(accountOpened.EventTime).ToUnixTimeSeconds().ToString() } },
                                         { "data", new AttributeValue { S = serializedEventData } }
                                     }
-                                }
-                            });
+                                },
+                               ConsumedCapacity = new ConsumedCapacity
+                               {
+                                   TableName = _tableName,
+                                   CapacityUnits = expectedConsumedCapacity
+                               }
+                           });
 
 
         // Act
@@ -227,6 +247,10 @@ public class DynamoDBEventStoreTests
 
         _mockTelemetryProvider.Verify(telemetry => telemetry.TrackMetric("DynamoDBEventStore.LoadStreamAsync.Time",
                                                                          It.IsAny<double>(),
+                                                                         null,
+                                                                         TelemetryVerbosity.Info), Times.Once);
+        _mockTelemetryProvider.Verify(telemetry => telemetry.TrackMetric("DynamoDBEventStore.LoadStreamAsync.ConsumedCapacity",
+                                                                         expectedConsumedCapacity,
                                                                          null,
                                                                          TelemetryVerbosity.Info), Times.Once);
     }
@@ -254,44 +278,4 @@ public class DynamoDBEventStoreTests
                                                                             TelemetryVerbosity.Error),
                                                     Times.Once);
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//[Fact]
-//public async Task WhenErrorOccurs_Expect_LoadStreamAsync_TracksException()
-//{
-//    // Arrange
-
-//    var streamId = "";
-
-//    // Act
-
-//    //var stream = await Assert.ThrowsAsync<Exception>(() => _eventStore.LoadStreamAsync<BankAccountEventStream>(streamId));
-//public async Task Expect_SaveStreamAsync_TracksMetricAndNoException()
-//{
-//    // Arrange
-
-//}
-
-//[Fact]
-//public async Task WhenVersionMismatch_Expect_SaveStreamAsync_TrackEvents()
-//{
-
-//}
-
-
-//}
