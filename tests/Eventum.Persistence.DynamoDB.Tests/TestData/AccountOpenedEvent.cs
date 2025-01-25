@@ -2,11 +2,14 @@
 using Eventum.EventSourcing;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Eventum.EventSourcing.Test")]
+[assembly: InternalsVisibleTo("Eventum.Persistence.DynamoDB.Tests;")]
 namespace Eventum.Persistence.DynamoDB.Tests.TestData;
 
 public class AccountOpenedEvent : IEventStreamEvent<AccountOpenedEventData>
 {
+    public AccountOpenedEvent()
+    {
+    }
     public AccountOpenedEvent(string streamId, Guid accountId, string accountHolderName, double balance)
     {
         StreamId = streamId;

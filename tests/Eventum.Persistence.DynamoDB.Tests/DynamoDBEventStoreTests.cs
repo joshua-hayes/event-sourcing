@@ -1,12 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Amazon;
+﻿using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using Eventum.EventSourcing;
-using Eventum.Persistence;
-using Eventum.Persistence.DynamoDB;
 using Eventum.Persistence.DynamoDB.Tests.TestData;
+using Eventum.Reflection.TypeResolution;
 using Eventum.Serialisation;
 using Eventum.Serialisation.Json;
 using Eventum.Telemetry;
@@ -17,12 +13,12 @@ namespace Eventum.Persistence.DynamoDB.Tests;
 
 public class DynamoDBEventStoreTests
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly Mock<ITelemetryProvider> _mockTelemetryProvider;
+    private readonly Mock<ITypeResolver> _mockTypeResolver;
+    private readonly Mock<IAmazonDynamoDB> _mockDynamoDbClient;
+    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly IEventStore _eventStore;
     private readonly IEventSerialiser _serialiser;
-    private readonly Mock<IEventTypeResolver> _mockEventTypeResolver;
-    private readonly Mock<IAmazonDynamoDB> _mockDynamoDbClient;
     private readonly string _tableName = "events";
     public DynamoDBEventStoreTests()
     {
@@ -33,11 +29,11 @@ public class DynamoDBEventStoreTests
         _mockTelemetryProvider = new Mock<ITelemetryProvider>();
         _mockDynamoDbClient = new Mock<IAmazonDynamoDB>();
         _serialiser = new JsonEventSerialiser(_mockTelemetryProvider.Object);
-        _mockEventTypeResolver = new Mock<IEventTypeResolver>();
+        _mockTypeResolver = new Mock<ITypeResolver>();
         _eventStore = new DynamoDBEventStore(_mockDynamoDbClient.Object,
                                              _mockTelemetryProvider.Object,
                                              _serialiser,
-                                             _mockEventTypeResolver.Object,
+                                             new UnknownTypeResolver(),
                                              _tableName);
     }
 
@@ -93,15 +89,15 @@ public class DynamoDBEventStoreTests
 
         _mockDynamoDbClient.Setup(client => client.QueryAsync(It.IsAny<QueryRequest>(), default))
                            .ReturnsAsync(new QueryResponse
-                            {
-                                Items = new List<Dictionary<string, AttributeValue>>
+                           {
+                               Items = new List<Dictionary<string, AttributeValue>>
                                 {
                                     new Dictionary<string, AttributeValue>
                                     {
                                         { "version", new AttributeValue { N = latestVersion.ToString() } }
                                     }
                                 }
-                            });
+                           });
 
         // Act
         var result = await _eventStore.SaveStreamAsync(eventStream, expectedVersion);
@@ -137,13 +133,12 @@ public class DynamoDBEventStoreTests
         var ex = await Assert.ThrowsAsync<Exception>(() => _eventStore.SaveStreamAsync(eventStream, expectedVersion));
         Assert.Equal("Test exception", ex.Message);
 
-        _mockTelemetryProvider.Verify(telemetry =>
-        telemetry.TrackException(testException,
-                                It.Is<Dictionary<string, string>>(d =>
-                                    d["Operation"] == "SaveStreamAsync" &&
-                                    d["StreamId"] == streamId &&
-                                    d["ErrorMessage"] == "Test exception"
-                                ), TelemetryVerbosity.Error), Times.Once);
+        _mockTelemetryProvider.Verify(telemetry => telemetry.TrackException(testException,
+                                                    It.Is<Dictionary<string, string>>(d =>
+                                                        d["Operation"] == "SaveStreamAsync" &&
+                                                        d["StreamId"] == streamId &&
+                                                        d["ErrorMessage"] == "Test exception"
+                                                    ), TelemetryVerbosity.Error), Times.Once);
     }
 
     [Fact]
@@ -185,4 +180,118 @@ public class DynamoDBEventStoreTests
     }
 
 
+
+
+
+    [Fact]
+    public async Task Expect_LoadStreamAsync_TracksMetricWithNoException()
+    {
+        // Arrange
+
+        var streamId = Guid.NewGuid().ToString();
+        var accountId = Guid.NewGuid();
+        var accountOpened = new AccountOpenedEvent(streamId, accountId, "Joe Bloggs", 1000.00)
+        {
+            Version = 1,
+            EventType = nameof(AccountOpenedEvent)
+        };
+        var serializedEventData = _serialiser.Serialise(accountOpened);
+
+        _mockDynamoDbClient.Setup(client => client.QueryAsync(It.IsAny<QueryRequest>(), default))
+                            .ReturnsAsync(new QueryResponse
+                            {
+                                Items = new List<Dictionary<string, AttributeValue>>
+                                {
+                                    new Dictionary<string, AttributeValue>
+                                    {
+                                        { "streamId", new AttributeValue { S = streamId } },
+                                        { "version", new AttributeValue { N = "1" } },
+                                        { "id", new AttributeValue { S = accountOpened.Id } },
+                                        { "eventType", new AttributeValue { S = nameof(AccountOpenedEvent) } },
+                                        { "eventTime", new AttributeValue { N = new DateTimeOffset(accountOpened.EventTime).ToUnixTimeSeconds().ToString() } },
+                                        { "data", new AttributeValue { S = serializedEventData } }
+                                    }
+                                }
+                            });
+
+
+        // Act
+
+        var eventStream = await _eventStore.LoadStreamAsync<BankAccountEventStream>(streamId);
+
+        // Assert
+
+        Assert.NotNull(eventStream);
+        Assert.Single(eventStream.Events);
+        Assert.IsType<AccountOpenedEvent>(eventStream.Events.First());
+
+        _mockTelemetryProvider.Verify(telemetry => telemetry.TrackMetric("DynamoDBEventStore.LoadStreamAsync.Time",
+                                                                         It.IsAny<double>(),
+                                                                         null,
+                                                                         TelemetryVerbosity.Info), Times.Once);
+    }
+
+    [Fact]
+    public async Task WhenErrorOccurs_Expect_LoadStreamAsync_TracksException()
+    {
+        // Arrange
+
+        var streamId = Guid.NewGuid().ToString();
+        var testException = new Exception("Test exception");
+
+        _mockDynamoDbClient.Setup(client => client.QueryAsync(It.IsAny<QueryRequest>(), default))
+                           .ThrowsAsync(testException);
+        // Act & Assert
+
+        var ex = await Assert.ThrowsAsync<Exception>(() => _eventStore.LoadStreamAsync<BankAccountEventStream>(streamId));
+        Assert.Equal("Test exception", ex.Message);
+
+        _mockTelemetryProvider.Verify(telemetry => telemetry.TrackException(testException, It.Is<Dictionary<string, string>>(d =>
+                                                                                                d["Operation"] == "LoadStreamAsync" &&
+                                                                                                d["StreamId"] == streamId &&
+                                                                                                d["ErrorMessage"] == testException.Message
+                                                                                            ),
+                                                                            TelemetryVerbosity.Error),
+                                                    Times.Once);
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//[Fact]
+//public async Task WhenErrorOccurs_Expect_LoadStreamAsync_TracksException()
+//{
+//    // Arrange
+
+//    var streamId = "";
+
+//    // Act
+
+//    //var stream = await Assert.ThrowsAsync<Exception>(() => _eventStore.LoadStreamAsync<BankAccountEventStream>(streamId));
+//public async Task Expect_SaveStreamAsync_TracksMetricAndNoException()
+//{
+//    // Arrange
+
+//}
+
+//[Fact]
+//public async Task WhenVersionMismatch_Expect_SaveStreamAsync_TrackEvents()
+//{
+
+//}
+
+
+//}

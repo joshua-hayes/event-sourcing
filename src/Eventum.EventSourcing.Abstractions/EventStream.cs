@@ -10,7 +10,7 @@ namespace Eventum.EventSourcing
     /// </summary>
     public abstract class EventStream : ISnapshotable
     {
-        private readonly List<IEventStreamEvent> _events;
+        protected readonly List<IEventStreamEvent> _events;
 
         public EventStream()
         {
@@ -45,10 +45,11 @@ namespace Eventum.EventSourcing
         /// Loads the event stream from history.
         /// </summary>
         /// <param name="history">The history of events to load.</param>
-        public void LoadFromHistory(IList<IEventStreamEvent> history)
+        /// <param name="keepEvents">True to keep the events after loading history (useful when unit testing).</param>
+        public void LoadFromHistory(IList<IEventStreamEvent> history, bool keepEvents = false)
         {
             foreach (var e in history)
-                ApplyChange(e, false);
+                ApplyChange(e, keepEvents);
         }
 
         /// <summary>

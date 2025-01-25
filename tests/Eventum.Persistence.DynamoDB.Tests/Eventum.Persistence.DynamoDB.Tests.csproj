@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Eventum.EventSourcing.Abstractions\Eventum.EventSourcing.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\Eventum.Persistence.DynamoDB\Eventum.Persistence.DynamoDB.csproj" />
+    <ProjectReference Include="..\..\src\Eventum.Reflection\Eventum.Reflection.csproj" />
     <ProjectReference Include="..\..\src\Eventum.Serialisation.Json\Eventum.Serialisation.Json.csproj" />
     <ProjectReference Include="..\..\src\Eventum.Telemetry.Abstractions\Eventum.Telemetry.Abstractions.csproj" />
   </ItemGroup>

@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Eventum.EventSourcing;
 using Eventum.Persistence.DynamoDB.Tests.TestData;
+using Eventum.Reflection.TypeResolution;
 using Eventum.Serialisation;
 using Eventum.Serialisation.Json;
 using Eventum.Telemetry;
@@ -13,11 +14,11 @@ namespace Eventum.Persistence.DynamoDB.Tests;
 
 public class DynamoDBConnectivityTests
 {
-    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly Mock<ITelemetryProvider> _mockTelemetryProvider;
+    private readonly Mock<ITypeResolver> _mockTypeResolver;
+    private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly IEventStore _eventStore;
     private readonly IEventSerialiser _serialiser;
-    private readonly Mock<IEventTypeResolver> _mockEventTypeResolver;
 
     public DynamoDBConnectivityTests()
     {
@@ -27,8 +28,12 @@ public class DynamoDBConnectivityTests
         });
         _mockTelemetryProvider = new Mock<ITelemetryProvider>();
         _serialiser = new JsonEventSerialiser(_mockTelemetryProvider.Object);
-        _mockEventTypeResolver = new Mock<IEventTypeResolver>();
-        _eventStore = new DynamoDBEventStore(_dynamoDbClient, _mockTelemetryProvider.Object, _serialiser, _mockEventTypeResolver.Object, "events");
+        _mockTypeResolver = new Mock<ITypeResolver>();
+        _eventStore = new DynamoDBEventStore(_dynamoDbClient,
+                                             _mockTelemetryProvider.Object,
+                                             _serialiser,
+                                             _mockTypeResolver.Object,
+                                             "events");
     }
 
     [Fact]

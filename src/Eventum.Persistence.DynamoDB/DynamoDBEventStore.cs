@@ -6,6 +6,7 @@ using Eventum.Serialisation;
 using Eventum.Telemetry;
 using System.Diagnostics;
 using System.IO;
+using Eventum.Reflection.TypeResolution;
 
 /// <summary>
 /// Provides DynamoDB persistence support for saving and loading events to / from
@@ -16,7 +17,7 @@ public class DynamoDBEventStore : IEventStore
     private readonly IAmazonDynamoDB _dynamoDbClient;
     private readonly ITelemetryProvider _telemetryProvider;
     private readonly IEventSerialiser _serialiser;
-    private readonly IEventTypeResolver _eventTypeResolver;
+    private readonly ITypeResolver _typeResolver;
     private readonly string _tableName;
 
     /// <summary>
@@ -25,26 +26,68 @@ public class DynamoDBEventStore : IEventStore
     /// <param name="dynamoDbClient">The DynamoDB client.</param>
     /// <param name="telemetryProvider">The provider used to track telemetry.</param>
     /// <param name="serialiser">The serialiser used to serialise / de-serialise events.</param>
-    /// <param name="eventTypeResolver">The resolver used to resolve the type of an event. </param>
+    /// <param name="typeResolver">The resolver used to resolve event types during de-serialisation. </param>
     /// <param name="tableName">The event table name.</param>
+    /// <param name="testMode">Whether or not the event store should be configured in test mode.</param>
     public DynamoDBEventStore(IAmazonDynamoDB dynamoDbClient,
                               ITelemetryProvider telemetryProvider,
                               IEventSerialiser serialiser,
-                              IEventTypeResolver eventTypeResolver,
-                              string tableName)
+                              ITypeResolver typeResolver,
+                              string tableName,
+                              bool testMode = false)
     {
         _dynamoDbClient = dynamoDbClient;
         _telemetryProvider = telemetryProvider;
         _serialiser = serialiser;
-        _eventTypeResolver = eventTypeResolver;
+        _typeResolver = typeResolver;
         _tableName = tableName;
     }
 
     /// <inheritdoc />
-    /// <exception cref="NotImplementedException"></exception>
-    public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream
+    public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream, new()
     {
-        throw new NotImplementedException();
+        var stopwatch = Stopwatch.StartNew();
+
+        try
+        {
+            var queryRequest = new QueryRequest {
+                TableName = _tableName,
+                KeyConditionExpression = "streamId = :streamId",
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    { ":streamId", new AttributeValue { S = streamId } }
+                },
+                ScanIndexForward = true,
+                ConsistentRead = true
+            };
+            var response = await _dynamoDbClient.QueryAsync(queryRequest);
+
+            var events = response.Items.Select(item =>
+            {
+                string eventTypeName = item["eventType"].S;
+                Type eventType = _typeResolver.Resolve(eventTypeName);
+                
+                var data = _serialiser.Deserialise(item["data"].S, eventType);
+                return (IEventStreamEvent)data;
+            }).ToList();
+
+            var eventStream = new T();
+            eventStream.LoadFromHistory(events, true);
+
+            _telemetryProvider.TrackMetric("DynamoDBEventStore.LoadStreamAsync.Time", stopwatch.ElapsedMilliseconds);
+            return eventStream;
+        }
+        catch (Exception ex)
+        {
+            _telemetryProvider.TrackException(ex, new Dictionary<string, string>
+            {
+                { "Operation", "LoadStreamAsync" },
+                { "StreamId", streamId },
+                { "ErrorMessage", ex.Message },
+                { "StackTrace", ex.StackTrace },
+            });
+            throw;
+        }
     }
 
     /// <inheritdoc />
@@ -129,7 +172,7 @@ public class DynamoDBEventStore : IEventStore
                                                         ? DateTime.UtcNow
                                                         : @event.EventTime;
 
-            var data = _serialiser.Serialise(((dynamic)@event).Data);
+            var data = _serialiser.Serialise(((dynamic)@event));
 
             var putRequest = new PutItemRequest
             {

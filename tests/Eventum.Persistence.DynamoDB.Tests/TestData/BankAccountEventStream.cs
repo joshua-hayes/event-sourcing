@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Eventum.EventSourcing;
 
-[assembly: InternalsVisibleTo("Eventum.EventSourcing.Test")]
+[assembly: InternalsVisibleTo("Eventum.Persistence.DynamoDB.Tests;")]
 namespace Eventum.Persistence.DynamoDB.Tests.TestData;
 
 public class BankAccountEventStream : EventStream, IEventHandler<AccountOpenedEvent>
@@ -14,6 +14,12 @@ public class BankAccountEventStream : EventStream, IEventHandler<AccountOpenedEv
     internal string AccountHolderName => _accountHolderName;
     internal double Balance => _balance;
     internal DateTime Modified => _modified;
+
+    internal IList<IEventStreamEvent> Events => _events;
+
+    public BankAccountEventStream()
+    {
+    }
 
     public BankAccountEventStream(string streamId, Guid accountId, string accountHolderName, double balance)
     {

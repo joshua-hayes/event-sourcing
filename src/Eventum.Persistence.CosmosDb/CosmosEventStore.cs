@@ -33,7 +33,7 @@ namespace Eventum.Persistence.CosmosDb
         /// <summary>
         /// <see cref="IEventStore.LoadStreamAsync{T}(string)"/>
         /// </summary>
-        public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream
+        public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream, new()
         {
             var sqlQueryText = "SELECT * FROM e"
                             + " WHERE e.streamId = @streamId"
