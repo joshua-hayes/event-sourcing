@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Amazon.Runtime;
 using Eventum.EventSourcing;
 
 [assembly: InternalsVisibleTo("Eventum.Persistence.DynamoDB.Tests;")]
@@ -9,8 +10,11 @@ public class BankAccountEventStream : EventStream, IEventHandler<AccountOpenedEv
     private string _accountHolderName;
     private double _balance;
     private DateTime _modified;
+    private string _accountId;
 
     // Internal properties for testing
+
+    internal string AccountId => _accountId;
     internal string AccountHolderName => _accountHolderName;
     internal double Balance => _balance;
     internal DateTime Modified => _modified;
@@ -29,6 +33,7 @@ public class BankAccountEventStream : EventStream, IEventHandler<AccountOpenedEv
     public void Handle(AccountOpenedEvent @event)
     {
         StreamId = @event.StreamId;
+        _accountId = @event.Id;
         _accountHolderName = @event.Data.AccountHolderName;
         _balance = @event.Data.Balance;
         _modified = @event.EventTime;
