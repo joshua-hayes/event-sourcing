@@ -33,23 +33,33 @@ namespace Eventum.Serialisation.Json
 
         public JsonSerializerOptions Options => _options;
 
-        /// <summary>
-        /// <see cref="IEventSerialiser.Serialise{T}(T)"/>
-        /// </summary>
+        /// <inheritdoc />
         /// <exception cref="ArgumentNullException"></exception>
         public T Deserialise<T>(string data)
+        {
+            var type = typeof(T);
+            var o = Deserialise(data, type);
+            T returnType = (T)o;
+
+            return returnType;
+        }
+
+        /// <inheritdoc />
+        /// <exception cref="ArgumentNullException"></exception>
+        public object Deserialise(string data, Type eventType)
         {
             var stopwatch = Stopwatch.StartNew();
             try
             {
                 if (string.IsNullOrEmpty(data))
                     throw new ArgumentNullException("data");
-
-                var result = JsonSerializer.Deserialize<T>(data!, _options);
+                
+                var result = JsonSerializer.Deserialize(data!, eventType, _options);
                 _telemetryProvider.TrackMetric("JsonEventSerialiser.Deserialise.Time", stopwatch.ElapsedMilliseconds);
 
                 return result;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _telemetryProvider.TrackException(ex, new Dictionary<string, string>
                 {
@@ -62,9 +72,8 @@ namespace Eventum.Serialisation.Json
             }
         }
 
-        /// <summary>
-        /// <see cref="IEventSerialiser.Deserialise{T}(string)"/>
-        /// </summary>
+
+        /// <inheritdoc />
         /// <exception cref="ArgumentNullException"></exception>
         public string Serialise<T>(T obj)
         {

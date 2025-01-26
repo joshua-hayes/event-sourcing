@@ -30,7 +30,7 @@ namespace Eventum.Persistence.InMemory
         /// <summary>
         /// <see cref="IEventStore.LoadStreamAsync{T}(string)"/>
         /// </summary>
-        public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream
+        public async Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream, new()
         {
             var stopwatch = Stopwatch.StartNew();
             try

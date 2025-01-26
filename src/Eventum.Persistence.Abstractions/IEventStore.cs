@@ -2,6 +2,10 @@
 
 namespace Eventum.Persistence
 {
+    /// <summary>
+    /// Provides an abstraction for a store that saves and loads events. Specifically,
+    /// eventstreams (which is similar to the DDD concept of an Aggregate or AggregateRoot).
+    /// </summary>
     public interface IEventStore
     {
         /// <summary>
@@ -11,7 +15,7 @@ namespace Eventum.Persistence
         /// <typeparam name="T">The generic type of the event stream being loaded.</typeparam>
         /// <param name="streamId">The identifier of the stream to load.</param>
         /// <returns>The hydrated event stream.</returns>
-        Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream;
+        Task<T> LoadStreamAsync<T>(string streamId) where T : EventStream, new();
 
         /// <summary>
         /// Saves changes to an event stream.

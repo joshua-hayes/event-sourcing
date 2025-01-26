@@ -22,14 +22,29 @@ public partial class JsonEventSerialiserTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public void WhenDataIsNullOrEmpty_Expect_Deserialise_ThrowsArgumentNullException(string data)
+    public void WhenDataIsNullOrEmpty_Expect_DeserialiseByGeneric_ThrowsArgumentNullException(string data)
     {
         // Act & Assert
+
         Assert.Throws<ArgumentNullException>(() => _jsonEventSerialiser.Deserialise<TestObject>(data));
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void WhenDataIsNullOrEmpty_Expect_DeserialiseByType_ThrowsArgumentNullException(string data)
+    {
+        // Act
+
+        var type = typeof(TestObject);
+
+        // Assert
+
+        Assert.Throws<ArgumentNullException>(() => _jsonEventSerialiser.Deserialise(data, type));
+    }
+
     [Fact]
-    public void WhenDataIsValid_Expect_Deserialise_ReturnsCorrectObject()
+    public void WhenDataIsValid_Expect_DeserialiseByGeneric_ReturnsCorrectObject()
     {
         // Arrange
 
@@ -39,6 +54,25 @@ public partial class JsonEventSerialiserTests
         // Act
 
         var actual = _jsonEventSerialiser.Deserialise<TestObject>(data);
+
+        // Assert
+
+        Assert.Equal(expected.Property1, actual.Property1);
+        Assert.Equal(expected.Property2, actual.Property2);
+    }
+
+    [Fact]
+    public void WhenDataIsValid_Expect_DeserialiseByType_ReturnsCorrectObject()
+    {
+        // Arrange
+
+        string data = "{\"Property1\": \"Value1\", \"Property2\": \"Value2\"}";
+        var expected = new TestObject { Property1 = "Value1", Property2 = "Value2" };
+        var type = typeof(TestObject);
+
+        // Act
+
+        var actual = (TestObject)_jsonEventSerialiser.Deserialise(data, type);
 
         // Assert
 
@@ -142,7 +176,7 @@ public partial class JsonEventSerialiserTests
     }
 
     [Fact]
-    public void Expect_Deserialise_TracksMetricAndNoException()
+    public void Expect_DeserialiseByGeneric_TracksMetricAndNoException()
     {
         // Arrange
 
@@ -151,6 +185,29 @@ public partial class JsonEventSerialiserTests
         // Act
 
         var obj = _jsonEventSerialiser.Deserialise<TestClass>(jsonString);
+
+        // Assert
+
+        _mockTelemetryProvider.Verify(tp => tp.TrackMetric("JsonEventSerialiser.Deserialise.Time",
+                                                           It.IsAny<double>(),
+                                                           null,
+                                                           TelemetryVerbosity.Info), Times.Once);
+        _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
+                                                              It.IsAny<IDictionary<string, string>>(),
+                                                              It.IsAny<TelemetryVerbosity>()), Times.Never);
+    }
+
+    [Fact]
+    public void Expect_DeserialiseByType_TracksMetricAndNoException()
+    {
+        // Arrange
+
+        var jsonString = "{\"id\":1,\"name\":\"Test\"}";
+        var type = typeof(TestClass);
+
+        // Act
+
+        var obj = _jsonEventSerialiser.Deserialise(jsonString, type);
 
         // Assert
 
@@ -183,11 +240,24 @@ public partial class JsonEventSerialiserTests
     }
 
     [Fact]
-    public void WhenErrorOccurs_Expect_Deserialise_TracksException_()
+    public void WhenErrorOccurs_Expect_DeserialiseByGeneric_TracksException()
     {
         // Act & Assert
 
         Assert.Throws<ArgumentNullException>(() => _jsonEventSerialiser.Deserialise<object>(null));
+
+        _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
+                                                              It.Is<IDictionary<string, string>>(d => d["Operation"] == "Deserialise"),
+                                                              TelemetryVerbosity.Error), Times.Once);
+    }
+
+    [Fact]
+    public void WhenErrorOccurs_Expect_DeserialiseByType_TracksException()
+    {
+        // Act & Assert
+
+        var type = typeof(TestObject);
+        Assert.Throws<ArgumentNullException>(() => _jsonEventSerialiser.Deserialise(null, type));
 
         _mockTelemetryProvider.Verify(tp => tp.TrackException(It.IsAny<Exception>(),
                                                               It.Is<IDictionary<string, string>>(d => d["Operation"] == "Deserialise"),
